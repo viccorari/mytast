@@ -1,0 +1,17 @@
+{
+  "name": "olva-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Entorno web para consultar el estado de un envio en Olva Courier",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "track": "node track.js"
+  },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

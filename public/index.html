@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rastreo Olva</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --line: #334155;
+      --text: #e2e8f0; --muted: #94a3b8; --accent: #2563eb; --ok: #22c55e; --err: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+      padding: 24px 16px;
+    }
+    main { max-width: 780px; margin: 0 auto; }
+    h1 { font-size: 20px; letter-spacing: -.02em; margin: 0 0 4px; }
+    p.sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+    form {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 12px; padding: 12px;
+    }
+    input, button {
+      font: inherit; border-radius: 8px; border: 1px solid var(--line);
+      background: #0b1220; color: var(--text); padding: 10px 12px;
+    }
+    input#code { flex: 1 1 220px; }
+    input#year { width: 110px; }
+    button {
+      background: var(--accent); border-color: var(--accent);
+      color: #fff; font-weight: 600; cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: progress; }
+    #out { margin-top: 20px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 12px; padding: 16px; margin-bottom: 12px;
+    }
+    .status { font-size: 17px; font-weight: 700; color: var(--ok); }
+    .error { color: var(--err); }
+    ol { margin: 12px 0 0; padding-left: 18px; }
+    li { margin-bottom: 8px; }
+    .date { color: var(--muted); font-size: 12px; display: block; }
+    details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+    pre { white-space: pre-wrap; font-size: 12px; color: var(--muted); }
+    img { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); margin-top: 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Rastreo Olva Courier</h1>
+  <p class="sub">
+    Este entorno abre la web publica de Olva en un navegador y lee el estado del envio.
+  </p>
+
+  <form id="f">
+    <input id="code" name="code" placeholder="Numero de guia (ej. 12345678)" required autofocus />
+    <input id="year" name="year" placeholder="Anio" inputmode="numeric" />
+    <button id="go" type="submit">Consultar</button>
+  </form>
+
+  <div id="out"></div>
+</main>
+
+<script>
+  const form = document.getElementById('f');
+  const out = document.getElementById('out');
+  const go = document.getElementById('go');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = document.getElementById('code').value.trim();
+    const year = document.getElementById('year').value.trim();
+    if (!code) return;
+
+    go.disabled = true;
+    out.innerHTML = '<div class="card">Abriendo la web de Olva y consultando la guia...</div>';
+
+    try {
+      const params = new URLSearchParams({ code });
+      if (year) params.set('year', year);
+      const res = await fetch('/api/track?' + params);
+      render(await res.json());
+    } catch (err) {
+      out.innerHTML = '<div class="card error">No se pudo consultar: ' + err.message + '</div>';
+    } finally {
+      go.disabled = false;
+    }
+  });
+
+  function render(r) {
+    if (!r.ok) {
+      out.innerHTML = '<div class="card"><div class="status error">Error</div><p>'
+        + escapeHtml(r.error || 'Consulta fallida') + '</p></div>';
+      return;
+    }
+
+    const events = r.events || [];
+    const head = r.found
+      ? '<div class="status">' + escapeHtml(r.status || 'Encontrado') + '</div>'
+      : '<div class="status error">Sin resultados para esa guia</div>';
+
+    const list = events.length
+      ? '<ol>' + events.map((e) =>
+          '<li>' + (e.date ? '<span class="date">' + escapeHtml(e.date) + '</span>' : '')
+          + escapeHtml(e.status) + '</li>').join('') + '</ol>'
+      : '';
+
+    out.innerHTML = '<div class="card">'
+      + head
+      + '<p class="sub">Guia ' + escapeHtml(r.code) + ' — consultado ' + escapeHtml(r.consultedAt) + '</p>'
+      + list
+      + '<details><summary>Texto devuelto por la web</summary><pre>'
+      + escapeHtml(r.rawText || '') + '</pre></details>'
+      + '<details><summary>Captura de la pagina</summary><img alt="captura" src="'
+      + r.screenshot + '&t=' + Date.now() + '" /></details>'
+      + '</div>';
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+  }
+</script>
+</body>
+</html>
