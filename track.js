@@ -1,12 +1,17 @@
 // Consulta rapida desde la terminal:  node track.js <numero-de-guia> [anio]
-import { track, TRACKING_URL } from './src/olva-session.js';
+import { track, parseGuia, TRACKING_URL } from './src/olva-session.js';
 
-const [code, year] = process.argv.slice(2);
+const [arg, yearArg] = process.argv.slice(2);
 
-if (!code) {
-  console.error('Uso: node track.js <numero-de-guia> [anio]');
+if (!arg) {
+  console.error('Uso: node track.js <numero-de-guia[-anio]> [anio]');
+  console.error('Ej.:  node track.js 02458485-26');
   process.exit(1);
 }
+
+const parsed = parseGuia(arg);
+const code = parsed.code;
+const year = yearArg || parsed.year || undefined;
 
 try {
   const r = await track({

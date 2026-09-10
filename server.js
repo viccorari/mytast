@@ -6,7 +6,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { track, TRACKING_URL } from './src/olva-session.js';
+import { track, parseGuia, TRACKING_URL } from './src/olva-session.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -33,8 +33,9 @@ const server = http.createServer(async (req, res) => {
 });
 
 async function handleTrack(url, res) {
-  const code = (url.searchParams.get('code') || '').trim();
-  const year = (url.searchParams.get('year') || '').trim();
+  const parsed = parseGuia(url.searchParams.get('code') || '');
+  const code = parsed.code;
+  const year = (url.searchParams.get('year') || '').trim() || parsed.year || '';
   if (!code) return json(res, 400, { ok: false, error: 'Falta el parametro code.' });
 
   const shot = path.join(CACHE_DIR, `${code.replace(/[^\w-]/g, '')}.png`);

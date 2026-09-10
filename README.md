@@ -26,21 +26,22 @@ npx playwright install chromium
 npm start           # http://localhost:3000
 ```
 
-Escribe el número de guía (8 dígitos, está arriba en la boleta o el comprobante) y,
-si lo tienes a mano, el año de emisión. La página muestra el último estado, todos los
-movimientos registrados y la captura de lo que devolvió la web de Olva.
+Pega el **N° tracking** tal como aparece en la boleta, con el año incluido
+(`12345678-26`), o solo la guía y el año por separado. La página muestra el último
+estado, todos los movimientos registrados y la captura de lo que devolvió la web de Olva.
 
 ### Terminal
 
 ```bash
-node track.js 12345678 2026
-HEADED=1 node track.js 12345678      # abre el navegador visible, para depurar
+node track.js 12345678-26            # formato de la boleta
+node track.js 12345678 2026          # guía y año por separado
+HEADED=1 node track.js 12345678-26   # abre el navegador visible, para depurar
 ```
 
 ### API local
 
 ```
-GET /api/track?code=<guía>&year=<año>
+GET /api/track?code=<guía[-año]>&year=<año>
 GET /api/screenshot?code=<guía>
 ```
 
@@ -78,6 +79,9 @@ public/index.html      interfaz
 
 ## Notas
 
+- El N° tracking de la boleta viene como `guía-año` de dos dígitos (`12345678-26`);
+  el año se expande a cuatro y, si el formulario de Olva lo lista de otra forma, se
+  prueban ambas variantes.
 - Los selectores del formulario son heurísticos (busca el campo de guía por nombre,
   id o placeholder y, si no lo encuentra, usa el primer campo de texto visible), así
   que un rediseño de la web de Olva no lo rompe de inmediato. Si aun así falla, la

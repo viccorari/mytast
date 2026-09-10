@@ -23,6 +23,21 @@ const STATE_HINTS =
   /(recepcion|recibido|en transito|transito|reparto|ruta|distribuci|entregado|agencia|almac|pendiente|devoluci|observad|destino|origen)/i;
 
 /**
+ * Acepta el formato tal cual sale impreso en la boleta ("02458485-26") y
+ * tambien la guia suelta. El anio de dos digitos se expande a cuatro.
+ *
+ * @param {string} input
+ * @returns {{code: string, year: string|null}}
+ */
+export function parseGuia(input) {
+  const raw = String(input || '').trim();
+  const m = raw.match(/^\s*(\d{4,12})\s*[-/]\s*(\d{2}|\d{4})\s*$/);
+  if (!m) return { code: raw, year: null };
+  const [, code, y] = m;
+  return { code, year: y.length === 2 ? `20${y}` : y };
+}
+
+/**
  * Consulta una guia en la web de Olva.
  *
  * @param {object} opts
@@ -176,10 +191,14 @@ async function findTrackingInput(page) {
 
 // El formulario de Olva suele pedir tambien el anio de emision.
 async function fillYear(page, year) {
+  // Olva puede listar el anio completo (2026) o de dos digitos (26).
+  const variants = [year, year.slice(-2)];
   const select = page.locator('select').first();
   if (await select.count().then((c) => c > 0).catch(() => false)) {
-    const ok = await select.selectOption(year).then(() => true).catch(() => false);
-    if (ok) return;
+    for (const v of variants) {
+      const ok = await select.selectOption(v).then(() => true).catch(() => false);
+      if (ok) return;
+    }
   }
   const candidates = page.locator(
     'input[name*="anio" i], input[name*="año" i], input[name*="year" i], ' +
