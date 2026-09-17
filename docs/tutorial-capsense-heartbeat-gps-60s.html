@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>CapSense + Meshtastic: posición GPS cada 60 s</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 16mm 14mm; }
+
+  :root{
+    --ink:#14181d;
+    --muted:#5b6673;
+    --line:#d9dee5;
+    --soft:#f4f6f9;
+    --accent:#1f6feb;
+    --accent-soft:#eaf1fe;
+    --warn:#b45309;
+    --warn-soft:#fdf3e3;
+    --ok:#15803d;
+    --ok-soft:#eaf6ee;
+    --danger:#b42318;
+    --danger-soft:#fdeceb;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  body{
+    font-family:"DejaVu Sans","Liberation Sans",sans-serif;
+    font-size:9.6pt;
+    line-height:1.5;
+    color:var(--ink);
+    margin:0;
+  }
+
+  h1,h2,h3{ line-height:1.22; margin:0; }
+
+  p{ margin:0 0 7pt; }
+
+  code{
+    font-family:"DejaVu Sans Mono","Liberation Mono",monospace;
+    font-size:8.4pt;
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:0.5pt 3pt;
+    white-space:nowrap;
+  }
+
+  b,strong{ font-weight:700; }
+
+  /* ---------- Portada ---------- */
+  .cover{ page-break-after:always; padding-top:6mm; }
+
+  .kicker{
+    font-size:8pt;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:700;
+    margin-bottom:6pt;
+  }
+
+  .cover h1{
+    font-size:27pt;
+    letter-spacing:-0.02em;
+    margin-bottom:8pt;
+  }
+
+  .cover .sub{
+    font-size:12pt;
+    color:var(--muted);
+    margin-bottom:16pt;
+    line-height:1.4;
+  }
+
+  .rule{ height:3px; background:var(--accent); width:54pt; margin:0 0 16pt; border-radius:2px; }
+
+  .cover-meta{
+    display:flex;
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:16pt;
+  }
+  .cover-meta div{
+    flex:1;
+    padding:8pt 10pt;
+    border-right:1px solid var(--line);
+  }
+  .cover-meta div:last-child{ border-right:none; }
+  .cover-meta .lbl{
+    font-size:7.2pt; text-transform:uppercase; letter-spacing:0.09em;
+    color:var(--muted); font-weight:700; margin-bottom:3pt;
+  }
+  .cover-meta .val{ font-size:9.4pt; font-weight:700; }
+
+  .toc{ border:1px solid var(--line); border-radius:6px; padding:12pt 14pt; background:var(--soft); }
+  .toc h3{ font-size:10pt; margin-bottom:8pt; }
+  .toc ol{ margin:0; padding-left:16pt; }
+  .toc li{ margin-bottom:3.5pt; }
+  .toc .t-note{ color:var(--muted); }
+
+  /* ---------- Estructura ---------- */
+  .sec{ page-break-inside:avoid; margin-bottom:13pt; }
+
+  h2{
+    font-size:13pt;
+    margin:0 0 8pt;
+    padding-bottom:4pt;
+    border-bottom:2px solid var(--ink);
+    letter-spacing:-0.01em;
+  }
+  h2 .num{
+    display:inline-block;
+    background:var(--ink);
+    color:#fff;
+    border-radius:4px;
+    font-size:9pt;
+    padding:1.5pt 6pt;
+    margin-right:6pt;
+    vertical-align:2pt;
+  }
+
+  h3{ font-size:10.2pt; margin:10pt 0 5pt; color:#0b1b33; }
+
+  /* ---------- Tablas ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:8.7pt;
+    margin:6pt 0 8pt;
+    page-break-inside:avoid;
+  }
+  th{
+    background:var(--ink);
+    color:#fff;
+    text-align:left;
+    padding:5pt 7pt;
+    font-size:8pt;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  td{ padding:5pt 7pt; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:nth-child(even) td{ background:#fbfcfd; }
+  td.val{ font-weight:700; color:var(--accent); white-space:nowrap; }
+  td.k{ font-weight:700; }
+  .en{ color:var(--muted); font-size:7.8pt; display:block; }
+
+  /* ---------- Cajas ---------- */
+  .box{
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft);
+    padding:7pt 10pt;
+    border-radius:0 4px 4px 0;
+    margin:8pt 0;
+    font-size:8.9pt;
+    page-break-inside:avoid;
+  }
+  .box.warn{ border-color:var(--warn); background:var(--warn-soft); }
+  .box.ok{ border-color:var(--ok); background:var(--ok-soft); }
+  .box.danger{ border-color:var(--danger); background:var(--danger-soft); }
+  .box .bt{
+    font-weight:700; font-size:8.2pt; text-transform:uppercase;
+    letter-spacing:0.07em; margin-bottom:3pt; color:var(--accent);
+  }
+  .box.warn .bt{ color:var(--warn); }
+  .box.ok .bt{ color:var(--ok); }
+  .box.danger .bt{ color:var(--danger); }
+  .box p:last-child{ margin-bottom:0; }
+
+  /* ---------- Pasos ---------- */
+  ol.steps{ margin:0 0 6pt; padding-left:15pt; }
+  ol.steps li{ margin-bottom:5pt; }
+  ul.tight{ margin:4pt 0 7pt; padding-left:15pt; }
+  ul.tight li{ margin-bottom:3pt; }
+
+  .path{
+    background:#fff;
+    border:1px dashed var(--line);
+    border-radius:4px;
+    padding:6pt 9pt;
+    font-size:8.8pt;
+    margin:6pt 0 8pt;
+  }
+  .path .arrow{ color:var(--accent); font-weight:700; padding:0 3pt; }
+  .path .lbl{
+    font-size:7.2pt; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--muted); font-weight:700; display:block; margin-bottom:2pt;
+  }
+
+  /* ---------- Diagrama ---------- */
+  .flow{
+    display:flex; align-items:stretch; gap:0;
+    margin:8pt 0 10pt; page-break-inside:avoid;
+  }
+  .flow .node{
+    flex:1; border:1px solid var(--line); border-radius:5px;
+    padding:7pt 6pt; text-align:center; background:#fff;
+  }
+  .flow .node .n-t{ font-weight:700; font-size:8.4pt; margin-bottom:2pt; }
+  .flow .node .n-d{ font-size:7.4pt; color:var(--muted); line-height:1.35; }
+  .flow .arr{
+    display:flex; align-items:center; padding:0 5pt;
+    color:var(--accent); font-weight:700; font-size:12pt;
+  }
+  .flow .node.hl{ border-color:var(--accent); background:var(--accent-soft); }
+
+  .cols{ display:flex; gap:10pt; }
+  .cols > div{ flex:1; }
+
+  footer.pf{
+    margin-top:14pt; padding-top:6pt; border-top:1px solid var(--line);
+    font-size:7.6pt; color:var(--muted);
+  }
+  .chk{ color:var(--ok); font-weight:700; }
+  .no{ color:var(--danger); font-weight:700; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="cover">
+  <div class="kicker">Tutorial de configuración · Meshtastic</div>
+  <h1>CapSense: enviar la posición GPS<br>como latido cada 60 segundos</h1>
+  <div class="rule"></div>
+  <div class="sub">Guía paso a paso usando <b>únicamente la app de Meshtastic</b> (Android o iOS).<br>
+  Punto de partida: nodo ya configurado en el preset <b>LONG_MODERATE</b> y en rol <b>CLIENTE</b>.</div>
+
+  <div class="cover-meta">
+    <div><div class="lbl">Dispositivo</div><div class="val">CapSense (nodo con GNSS)</div></div>
+    <div><div class="lbl">Herramienta</div><div class="val">App Meshtastic · BLE</div></div>
+    <div><div class="lbl">Objetivo</div><div class="val">Posición cada 60 s</div></div>
+    <div><div class="lbl">Duración</div><div class="val">~10 minutos</div></div>
+  </div>
+
+  <div class="box">
+    <div class="bt">Qué es un «heartbeat» en Meshtastic</div>
+    <p>Meshtastic <b>no tiene</b> un paquete llamado «heartbeat». El equivalente funcional es el
+    <b>anuncio periódico de posición</b> (<code>POSITION_APP</code>): el nodo emite en broadcast sus coordenadas
+    a intervalo fijo. Cada uno de esos paquetes actualiza también el campo <i>visto por última vez</i>
+    (<i>last heard</i>) del nodo en el resto de la malla, así que cumple las dos funciones a la vez:
+    <b>señal de vida + ubicación</b>. Configurar «heartbeats cada 60 s» = fijar el intervalo de difusión
+    de posición en 60 segundos y desactivar la posición inteligente.</p>
+  </div>
+
+  <div class="toc">
+    <h3>Contenido</h3>
+    <ol>
+      <li>Antes de empezar: qué necesitas y qué ya está hecho</li>
+      <li>Conectar el CapSense a la app por Bluetooth</li>
+      <li>Verificar la base: LoRa (LONG_MODERATE) y rol Cliente</li>
+      <li><b>Configurar Posición: el latido de 60 s</b> <span class="t-note">— el paso clave</span></li>
+      <li>Activar el envío de ubicación en el canal</li>
+      <li>Energía: que el latido no se interrumpa</li>
+      <li>Guardar, reiniciar y verificar que late</li>
+      <li>Tabla resumen de todos los valores</li>
+      <li>Coste en aire y en batería (lee esto)</li>
+      <li>Solución de problemas</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="sec">
+  <h2><span class="num">1</span>Antes de empezar</h2>
+
+  <p>Este tutorial se hace <b>al 100 % desde la app</b>: no hace falta cable USB, ni la web
+  <i>client.meshtastic.org</i>, ni la CLI de Python.</p>
+
+  <h3>Lo que ya tienes hecho (según tu configuración previa)</h3>
+  <table>
+    <tr><td class="k" style="width:38%">Preset de módem</td><td><b>LONG_MODERATE</b> — no se toca en todo el tutorial.</td></tr>
+    <tr><td class="k">Rol del dispositivo</td><td><b>CLIENT</b> (Cliente) — se mantiene; solo lo verificamos.</td></tr>
+  </table>
+
+  <h3>Lo que necesitas</h3>
+  <ul class="tight">
+    <li>El <b>CapSense encendido y cargado</b> (o conectado a USB durante la configuración).</li>
+    <li>La app <b>Meshtastic</b> instalada y actualizada (Play Store / App Store), versión 2.3 o superior.</li>
+    <li><b>Bluetooth y permisos de ubicación</b> concedidos a la app en el teléfono (en Android la app pide
+    el permiso de ubicación para poder escanear por BLE: si lo deniegas no verás el nodo).</li>
+    <li><b>Cielo despejado</b> para el primer arranque: el GNSS necesita ver satélites. Dentro de un edificio
+    es habitual que nunca consiga el <i>fix</i> y entonces <b>no se emite ninguna posición</b>.</li>
+    <li>Idealmente, <b>un segundo nodo</b> de la misma malla para comprobar por radio que los latidos llegan.</li>
+  </ul>
+
+  <div class="box warn">
+    <div class="bt">Nombres de los ajustes</div>
+    <p>La app se traduce parcialmente y los textos cambian entre versiones. En cada tabla verás el nombre
+    en español y, debajo en gris, el <b>nombre en inglés</b>, que es el que aparece si tu app está en inglés
+    o si la traducción todavía no existe. Busca cualquiera de los dos.</p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="sec">
+  <h2><span class="num">2</span>Conectar el CapSense a la app</h2>
+
+  <ol class="steps">
+    <li>Enciende el CapSense y espera ~15 segundos a que arranque el firmware.</li>
+    <li>Abre la app Meshtastic. Si ya tenías otro nodo emparejado, ve a la pestaña
+    <b>Ajustes</b> (<span class="en" style="display:inline">Settings</span>, el icono de engranaje) y pulsa
+    sobre el nodo conectado para <b>cambiar de dispositivo</b>.</li>
+    <li>En la lista de dispositivos Bluetooth busca el tuyo: aparece como
+    <code>Meshtastic_XXXX</code> (los 4 últimos dígitos de su ID). Selecciónalo.</li>
+    <li>Android te pedirá el <b>código de emparejamiento</b>. El CapSense no tiene pantalla donde mostrarlo,
+    así que usa el PIN fijo por defecto: <code>123456</code>.</li>
+    <li>Espera a que el indicador de conexión de la app se ponga en verde / muestre
+    <b>Conectado</b>. Ya puedes configurar.</li>
+  </ol>
+
+  <div class="box">
+    <div class="bt">Dónde está todo</div>
+    <p>Todos los ajustes de este tutorial viven en el mismo sitio. Memoriza esta ruta:</p>
+    <div class="path" style="margin-bottom:0">
+      <span class="lbl">Ruta base</span>
+      App Meshtastic <span class="arrow">&rsaquo;</span> pestaña <b>Ajustes</b> (engranaje)
+      <span class="arrow">&rsaquo;</span> tarjeta del nodo conectado
+      <span class="arrow">&rsaquo;</span> <b>Configuración de radio</b>
+      <span class="en" style="display:inline">(Radio configuration)</span>
+    </div>
+  </div>
+
+  <p>Dentro de <b>Configuración de radio</b> encontrarás las secciones que vamos a tocar:
+  <b>Dispositivo</b>, <b>Posición</b>, <b>Energía</b>, <b>LoRa</b> y <b>Canales</b>.</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="sec">
+  <h2><span class="num">3</span>Verificar la base (no cambiar nada)</h2>
+
+  <p>Antes de tocar la posición, confirma en 30 segundos que el punto de partida sigue siendo el correcto.
+  Si algo no coincide, corrígelo <b>ahora</b>: cambiar el preset o la región después obliga a repetir la verificación.</p>
+
+  <div class="path">
+    <span class="lbl">Paso 3a</span>
+    Configuración de radio <span class="arrow">&rsaquo;</span> <b>LoRa</b>
+  </div>
+
+  <table>
+    <tr><th style="width:34%">Ajuste</th><th style="width:22%">Valor esperado</th><th>Comentario</th></tr>
+    <tr>
+      <td class="k">Región <span class="en">Region</span></td>
+      <td class="val">La de tu país</td>
+      <td>Ej. <code>EU_868</code>, <code>US</code>, <code>ANZ</code>. Si está en <code>UNSET</code> el nodo <b>no transmite</b>.</td>
+    </tr>
+    <tr>
+      <td class="k">Preset de módem <span class="en">Modem preset</span></td>
+      <td class="val">LONG_MODERATE</td>
+      <td>Ya configurado. <b>No lo cambies</b>: todos los nodos de la malla deben usar el mismo.</td>
+    </tr>
+    <tr>
+      <td class="k">Transmisión habilitada <span class="en">TX enabled</span></td>
+      <td class="val">Activado</td>
+      <td>Si está desactivado el nodo solo escucha y nunca emitirá latidos.</td>
+    </tr>
+    <tr>
+      <td class="k">Límite de saltos <span class="en">Hop limit</span></td>
+      <td class="val">3 (o menos)</td>
+      <td>Cada salto multiplica el tráfico. Con latidos de 60 s, cuanto más bajo, mejor (ver sección 9).</td>
+    </tr>
+  </table>
+
+  <div class="path">
+    <span class="lbl">Paso 3b</span>
+    Configuración de radio <span class="arrow">&rsaquo;</span> <b>Dispositivo</b>
+    <span class="en" style="display:inline">(Device)</span>
+  </div>
+
+  <table>
+    <tr><th style="width:34%">Ajuste</th><th style="width:22%">Valor esperado</th><th>Comentario</th></tr>
+    <tr>
+      <td class="k">Rol <span class="en">Role</span></td>
+      <td class="val">CLIENT</td>
+      <td>Ya configurado. Emite y también retransmite paquetes de otros; es lo correcto para un nodo de seguimiento dentro de una malla.</td>
+    </tr>
+    <tr>
+      <td class="k">Intervalo de NodeInfo <span class="en">Node info broadcast interval</span></td>
+      <td class="val">10800 s (3 h)</td>
+      <td><b>Déjalo como está.</b> Es el anuncio de nombre/hardware, no la posición. Bajarlo satura la malla sin aportar nada al latido. El firmware rechaza valores por debajo de 1 hora.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="sec" style="page-break-before:always">
+  <h2><span class="num">4</span>Configurar Posición: el latido de 60 s</h2>
+
+  <p>Este es <b>el paso que define el comportamiento</b> que pides. Todo lo demás es soporte.</p>
+
+  <div class="path">
+    <span class="lbl">Ruta</span>
+    Configuración de radio <span class="arrow">&rsaquo;</span> <b>Posición</b>
+    <span class="en" style="display:inline">(Position)</span>
+  </div>
+
+  <table>
+    <tr><th style="width:30%">Ajuste</th><th style="width:20%">Valor</th><th>Por qué</th></tr>
+    <tr>
+      <td class="k">GPS <span class="en">GPS mode</span></td>
+      <td class="val">Habilitado<br><span class="en" style="display:inline">(Enabled)</span></td>
+      <td>El receptor GNSS integrado queda gestionado por el firmware. <b>No elijas</b> <i>Desactivado</i> ni <i>No presente</i>: sin GPS activo no hay nada que emitir.</td>
+    </tr>
+    <tr>
+      <td class="k">Intervalo de difusión de posición <span class="en">Position broadcast interval</span></td>
+      <td class="val">60 s<br><span class="en" style="display:inline">(1 minuto)</span></td>
+      <td><b>Este es el latido.</b> Cada 60 s el nodo emitirá un paquete de posición en broadcast. Si tu app muestra un desplegable, elige <i>1 minuto</i>; si es un campo numérico, escribe <code>60</code>.</td>
+    </tr>
+    <tr>
+      <td class="k">Posición inteligente <span class="en">Smart position / Enable smart broadcast</span></td>
+      <td class="val">DESACTIVADO</td>
+      <td><b>Imprescindible.</b> Con la posición inteligente activada el nodo solo emite <i>cuando se ha movido</i> una distancia mínima; en reposo se queda callado y deja de latir. Desactivándola se respeta el intervalo fijo de 60 s pase lo que pase.</td>
+    </tr>
+    <tr>
+      <td class="k">Usar posición fija <span class="en">Use fixed position</span></td>
+      <td class="val">DESACTIVADO</td>
+      <td>Si lo activas, el nodo emite unas coordenadas escritas a mano e ignora el GNSS. Solo tiene sentido para nodos inmóviles sin GPS.</td>
+    </tr>
+    <tr>
+      <td class="k">Intervalo de actualización GPS <span class="en">GPS update interval</span></td>
+      <td class="val">30 s</td>
+      <td>Cada cuánto el firmware pide una nueva lectura al GNSS. Debe ser <b>igual o menor</b> que el intervalo de difusión; si fuese mayor (el valor por defecto suele ser 120 s) emitirías cada minuto una posición <b>vieja</b>, repetida.</td>
+    </tr>
+    <tr>
+      <td class="k">Banderas de posición <span class="en">Position flags</span></td>
+      <td class="val">Las mínimas</td>
+      <td>Cada casilla marcada (altitud, satélites a la vista, DOP, rumbo, velocidad, marca de tiempo…) <b>añade bytes</b> a un paquete que vas a enviar 1 440 veces al día. Deja marcado solo lo que vayas a usar de verdad — con <i>Altitud</i> suele bastar; desmarca el resto.</td>
+    </tr>
+    <tr>
+      <td class="k">Pines GPS RX / TX <span class="en">GPS RX/TX pin</span></td>
+      <td class="val">No tocar</td>
+      <td>Vienen definidos por el firmware oficial del CapSense. Cambiarlos deja el GNSS mudo y solo se arregla reconectando por cable.</td>
+    </tr>
+  </table>
+
+  <div class="box ok">
+    <div class="bt">La regla de oro</div>
+    <p><b>Intervalo de difusión = 60 s</b> + <b>Posición inteligente = desactivada</b>. Esas dos juntas son
+    lo que convierte al nodo en un emisor de latidos regular. Con la primera sola pero la segunda activada,
+    el nodo parado no emitirá nada durante horas.</p>
+  </div>
+
+  <div class="box warn">
+    <div class="bt">Si el firmware no acepta el valor</div>
+    <p>Algunas versiones imponen un intervalo mínimo de difusión (del orden de 30 s) y ajustan por su cuenta
+    cualquier valor por debajo. <b>60 s está dentro de lo permitido</b> en el firmware actual. Si al guardar el
+    campo vuelve a otro número, reconecta y vuelve a leer el valor: lo que muestre tras el reinicio es lo
+    que el nodo está aplicando de verdad.</p>
+  </div>
+
+  <h3>Pulsa Guardar</h3>
+  <p>En la esquina superior derecha de la pantalla de Posición hay un botón <b>Guardar</b>
+  (<span class="en" style="display:inline">Save</span>) o un icono de disquete. Al pulsarlo la app envía la
+  configuración y <b>el nodo se reinicia</b>: es normal que el Bluetooth se caiga unos segundos y se
+  reconecte solo. <b>Si no pulsas Guardar, no se aplica nada.</b></p>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="sec">
+  <h2><span class="num">5</span>Activar el envío de ubicación en el canal</h2>
+
+  <p>Aunque el GPS funcione y el intervalo esté en 60 s, el nodo <b>no compartirá coordenadas</b> si el canal
+  tiene el envío de ubicación desactivado. Es el fallo silencioso más común.</p>
+
+  <div class="path">
+    <span class="lbl">Ruta</span>
+    Configuración de radio <span class="arrow">&rsaquo;</span> <b>Canales</b>
+    <span class="arrow">&rsaquo;</span> canal <b>Primario</b> (índice 0, normalmente <code>LongFast</code> o el nombre de tu malla)
+  </div>
+
+  <table>
+    <tr><th style="width:34%">Ajuste</th><th style="width:22%">Valor</th><th>Comentario</th></tr>
+    <tr>
+      <td class="k">Compartir ubicación <span class="en">Position enabled / Location sharing</span></td>
+      <td class="val">ACTIVADO</td>
+      <td>Autoriza a adjuntar coordenadas a los paquetes de este canal. Sin esto, los latidos salen sin posición o directamente no salen.</td>
+    </tr>
+    <tr>
+      <td class="k">Precisión de la ubicación <span class="en">Location precision</span></td>
+      <td class="val">Máxima / Precisa</td>
+      <td>Si quieres coordenadas exactas, ponlo al máximo. Los valores intermedios redondean la posición a una cuadrícula (útil por privacidad en canales públicos, inútil si estás haciendo seguimiento).</td>
+    </tr>
+  </table>
+
+  <p>Pulsa <b>Guardar</b> también en esta pantalla. El nodo volverá a reiniciarse.</p>
+
+  <div class="box warn">
+    <div class="bt">Cuidado al editar canales</div>
+    <p>No cambies el <b>nombre</b> ni la <b>clave precompartida (PSK)</b> del canal: si lo haces, el CapSense
+    dejará de entenderse con el resto de tu malla y sus latidos, aunque se emitan, no los verá nadie.
+    Toca únicamente los dos conmutadores de la tabla.</p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="sec">
+  <h2><span class="num">6</span>Energía: que el latido no se interrumpa</h2>
+
+  <div class="path">
+    <span class="lbl">Ruta</span>
+    Configuración de radio <span class="arrow">&rsaquo;</span> <b>Energía</b>
+    <span class="en" style="display:inline">(Power)</span>
+  </div>
+
+  <table>
+    <tr><th style="width:34%">Ajuste</th><th style="width:22%">Valor</th><th>Comentario</th></tr>
+    <tr>
+      <td class="k">Ahorro de energía <span class="en">Enable power saving</span></td>
+      <td class="val">DESACTIVADO</td>
+      <td>Con el ahorro activo el nodo entra en suspensión ligera y puede apagar el GNSS entre ciclos; el primer latido tras despertar llega tarde o sin <i>fix</i>. Desactivado, el latido de 60 s es regular.</td>
+    </tr>
+    <tr>
+      <td class="k">Suspensión profunda <span class="en">Super deep sleep interval</span></td>
+      <td class="val">Por defecto</td>
+      <td>No lo actives: un nodo dormido no late.</td>
+    </tr>
+    <tr>
+      <td class="k">Apagado por batería baja <span class="en">Shutdown on battery delay</span></td>
+      <td class="val">Por defecto</td>
+      <td>Protege la batería. Déjalo como viene.</td>
+    </tr>
+  </table>
+
+  <p>Guarda y deja que el nodo se reinicie. <b>Esta es la última pantalla de configuración</b>: ya está todo.</p>
+
+  <div class="box">
+    <div class="bt">Sobre la telemetría</div>
+    <p>En <b>Configuración de módulos <span class="arrow">&rsaquo;</span> Telemetría</b> hay intervalos para
+    métricas del dispositivo y de sensores ambientales. <b>No los bajes a 60 s.</b> Duplicarías el tráfico
+    por radio sin mejorar el seguimiento: cada paquete de posición ya actualiza el «visto por última vez»,
+    que es la señal de vida que buscas. Deja la telemetría en su valor por defecto (30 minutos o más).</p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="sec" style="page-break-before:always">
+  <h2><span class="num">7</span>Verificar que el nodo late</h2>
+
+  <div class="flow">
+    <div class="node"><div class="n-t">GNSS</div><div class="n-d">Obtiene fix<br>cada 30 s</div></div>
+    <div class="arr">&rsaquo;</div>
+    <div class="node hl"><div class="n-t">Firmware</div><div class="n-d">Temporizador<br>de 60 s</div></div>
+    <div class="arr">&rsaquo;</div>
+    <div class="node"><div class="n-t">LoRa TX</div><div class="n-d">Broadcast<br>POSITION_APP</div></div>
+    <div class="arr">&rsaquo;</div>
+    <div class="node"><div class="n-t">Vecinos</div><div class="n-d">Reciben y<br>retransmiten</div></div>
+    <div class="arr">&rsaquo;</div>
+    <div class="node"><div class="n-t">App</div><div class="n-d">Mapa y lista<br>de nodos</div></div>
+  </div>
+
+  <h3>Comprobación 1 — El GPS tiene fix</h3>
+  <ul class="tight">
+    <li>Saca el CapSense al exterior, con el cielo despejado, y <b>espera</b>. Un arranque en frío tarda
+    típicamente entre 1 y 5 minutos en enganchar satélites la primera vez.</li>
+    <li>En la app, abre la pestaña <b>Nodos</b> y toca tu CapSense: en su ficha debe aparecer una
+    <b>posición con coordenadas</b> y una hora reciente.</li>
+  </ul>
+
+  <h3>Comprobación 2 — El latido llega cada minuto</h3>
+  <ul class="tight">
+    <li>En la lista de <b>Nodos</b>, el contador de <b>«visto hace…»</b> del CapSense debe
+    <b>reiniciarse aproximadamente cada 60 segundos</b>. Míralo durante 3–4 minutos seguidos: si sube a
+    2, 3, 5 minutos y sigue subiendo, el latido no está saliendo (ve a la sección 10).</li>
+    <li>En el <b>Mapa</b>, el marcador del nodo debe actualizarse solo, dejando rastro si te mueves.</li>
+  </ul>
+
+  <div class="box">
+    <div class="bt">La verificación que de verdad vale</div>
+    <p>Si el teléfono está conectado <b>al propio CapSense</b>, lo que ves viene por Bluetooth, no por radio:
+    demuestra que el GPS y el temporizador funcionan, pero no que la malla lo escucha. Para la prueba real,
+    conecta la app a <b>otro nodo</b> de la malla y comprueba desde ahí que el CapSense aparece con su
+    posición y con el «visto hace…» refrescándose cada minuto. Eso confirma el camino completo por LoRa.</p>
+  </div>
+
+  <h3>Comprobación 3 — Llevas tres minutos y todo sigue igual</h3>
+  <p>Si el contador se reinicia con regularidad y el mapa se mueve, <span class="chk">listo</span>: el CapSense
+  está emitiendo su posición GPS como latido cada 60 segundos sobre LONG_MODERATE, en rol Cliente.</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="sec">
+  <h2><span class="num">8</span>Resumen: todos los valores de un vistazo</h2>
+
+  <table>
+    <tr><th style="width:18%">Sección</th><th style="width:38%">Ajuste</th><th style="width:20%">Valor</th><th>Papel</th></tr>
+    <tr><td class="k">LoRa</td><td>Región · Preset · TX</td><td class="val">Tu país · LONG_MODERATE · ON</td><td>Ya configurado</td></tr>
+    <tr><td class="k">LoRa</td><td>Límite de saltos</td><td class="val">3 o menos</td><td>Contiene el tráfico</td></tr>
+    <tr><td class="k">Dispositivo</td><td>Rol</td><td class="val">CLIENT</td><td>Ya configurado</td></tr>
+    <tr><td class="k">Dispositivo</td><td>Intervalo de NodeInfo</td><td class="val">10800 s</td><td>Sin cambios</td></tr>
+    <tr><td class="k">Posición</td><td>GPS</td><td class="val">Habilitado</td><td>Fuente de datos</td></tr>
+    <tr><td class="k">Posición</td><td><b>Intervalo de difusión de posición</b></td><td class="val">60 s</td><td><b>El latido</b></td></tr>
+    <tr><td class="k">Posición</td><td><b>Posición inteligente</b></td><td class="val">DESACTIVADA</td><td><b>Hace que el latido sea fijo</b></td></tr>
+    <tr><td class="k">Posición</td><td>Posición fija</td><td class="val">Desactivada</td><td>Usamos el GNSS real</td></tr>
+    <tr><td class="k">Posición</td><td>Intervalo de actualización GPS</td><td class="val">30 s</td><td>Fix fresco en cada latido</td></tr>
+    <tr><td class="k">Posición</td><td>Banderas de posición</td><td class="val">Mínimas</td><td>Paquete más corto</td></tr>
+    <tr><td class="k">Canal 0</td><td>Compartir ubicación</td><td class="val">ACTIVADO</td><td>Permiso para enviar coordenadas</td></tr>
+    <tr><td class="k">Canal 0</td><td>Precisión de ubicación</td><td class="val">Máxima</td><td>Coordenadas exactas</td></tr>
+    <tr><td class="k">Energía</td><td>Ahorro de energía</td><td class="val">DESACTIVADO</td><td>Latido sin huecos</td></tr>
+    <tr><td class="k">Módulos</td><td>Telemetría</td><td class="val">Por defecto</td><td>No duplicar tráfico</td></tr>
+  </table>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="sec">
+  <h2><span class="num">9</span>Lo que cuesta un latido de 60 s</h2>
+
+  <p>Conviene que sepas a qué te compromete este ajuste, porque <b>LONG_MODERATE es un preset lento</b>
+  (SF11 con ancho de banda de 125 kHz, del orden de 0,34 kbps) y cada paquete ocupa el canal bastante tiempo.</p>
+
+  <table>
+    <tr><th style="width:44%">Magnitud</th><th>Estimación aproximada</th></tr>
+    <tr><td class="k">Tiempo en el aire de un paquete de posición</td><td>≈ 1,5 – 2 segundos</td></tr>
+    <tr><td class="k">Latidos por hora</td><td>60 (1 440 al día)</td></tr>
+    <tr><td class="k">Ocupación del canal por tu nodo</td><td>≈ 2 – 3 % del tiempo, de forma continua</td></tr>
+    <tr><td class="k">Ocupación con retransmisiones</td><td>Se <b>multiplica</b> por cada vecino que retransmite y por cada salto permitido</td></tr>
+  </table>
+
+  <div class="box danger">
+    <div class="bt">Tenlo presente</div>
+    <p>Un solo nodo latiendo cada 60 s en LONG_MODERATE es perfectamente viable. <b>Varios nodos haciendo lo
+    mismo a la vez no lo es</b>: el canal se llena, empiezan las colisiones y la malla pierde mensajes —
+    incluidos los latidos que querías vigilar. Además, en regiones con límite legal de ciclo de trabajo
+    (por ejemplo EU_868) el propio firmware puede retener transmisiones si te acercas al límite.</p>
+    <p>Recomendación práctica: usa 60 s <b>solo en el nodo que realmente necesitas seguir</b> y solo mientras
+    lo necesitas. Para vigilancia continua de largo plazo, <b>120–300 s</b> da casi la misma información con
+    una fracción del tráfico y mucha más batería.</p>
+  </div>
+
+  <h3>Batería</h3>
+  <p>Con el GNSS siempre encendido, el ahorro de energía desactivado y una transmisión por minuto, la autonomía
+  del CapSense se mide en <b>horas, no en días</b>. Si el nodo va a estar fijo mucho tiempo, aliméntalo por USB
+  o por panel solar; si va en movimiento, lleva batería externa. Para alargar la autonomía sin renunciar del
+  todo al seguimiento, el primer valor que debes subir es el <b>intervalo de difusión</b>, y el segundo, el
+  <b>intervalo de actualización GPS</b>.</p>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="sec" style="page-break-before:always">
+  <h2><span class="num">10</span>Solución de problemas</h2>
+
+  <table>
+    <tr><th style="width:34%">Síntoma</th><th>Causa habitual y solución</th></tr>
+    <tr>
+      <td class="k">El nodo aparece en la malla pero <b>sin posición</b></td>
+      <td>No hay <i>fix</i> de GNSS. Sácalo al exterior y espera 1–5 min. Comprueba que <b>GPS = Habilitado</b> (no <i>Desactivado</i> ni <i>No presente</i>) y que no tocaste los pines GPS RX/TX.</td>
+    </tr>
+    <tr>
+      <td class="k">Emite, pero <b>solo cada 15 minutos</b></td>
+      <td>Es el valor por defecto: el guardado no se aplicó. Reconecta, vuelve a <b>Posición</b> y comprueba qué número muestra el intervalo de difusión ahora. Vuelve a ponerlo en 60 y pulsa <b>Guardar</b>.</td>
+    </tr>
+    <tr>
+      <td class="k">Late al moverse, pero <b>se calla en reposo</b></td>
+      <td>La <b>posición inteligente</b> sigue activada. Desactívala (sección 4) y guarda.</td>
+    </tr>
+    <tr>
+      <td class="k">Late cada minuto pero <b>con coordenadas repetidas</b></td>
+      <td>El <b>intervalo de actualización GPS</b> es mayor que el de difusión. Bájalo a 30 s.</td>
+    </tr>
+    <tr>
+      <td class="k">La posición <b>no llega a otros nodos</b></td>
+      <td>Revisa, en ese orden: <b>Compartir ubicación</b> del canal activado (sección 5); la <b>precisión de ubicación</b> no reducida al mínimo; que ambos nodos tengan <b>la misma región, el mismo preset y el mismo canal/PSK</b>; y que <b>TX enabled</b> esté activo.</td>
+    </tr>
+    <tr>
+      <td class="k">El Bluetooth <b>se desconecta al guardar</b></td>
+      <td>Normal: el nodo se reinicia para aplicar la configuración. Espera 10–20 s a que se reconecte solo.</td>
+    </tr>
+    <tr>
+      <td class="k">La app <b>no encuentra</b> el CapSense</td>
+      <td>Comprueba que el nodo está encendido, que el Bluetooth del teléfono está activo y que la app tiene el <b>permiso de ubicación</b> (Android lo exige para escanear BLE). PIN de emparejamiento: <code>123456</code>.</td>
+    </tr>
+    <tr>
+      <td class="k">Los latidos llegan <b>irregulares o se pierden</b></td>
+      <td>Canal saturado. Baja el <b>límite de saltos</b>, desmarca banderas de posición innecesarias, sube el intervalo a 120 s, o revisa si hay otros nodos emitiendo con la misma frecuencia.</td>
+    </tr>
+    <tr>
+      <td class="k">El nodo <b>se apaga solo</b> tras unas horas</td>
+      <td>Batería agotada: es el coste esperado de un latido de 60 s con el GNSS siempre activo (sección 9). Aliméntalo por USB o sube el intervalo.</td>
+    </tr>
+  </table>
+
+  <h3>Volver atrás</h3>
+  <p>Para deshacer el ajuste basta con revertir dos valores en <b>Posición</b>: <b>Intervalo de difusión</b> a
+  <code>900</code> s (15 minutos, el valor por defecto) y <b>Posición inteligente</b> activada. Si quieres
+  empezar del todo de cero, en <b>Dispositivo</b> existe la opción de <b>restablecer la configuración de
+  fábrica</b>, pero eso borra también canales, región y rol: tendrías que rehacer LONG_MODERATE y el rol
+  Cliente desde el principio.</p>
+
+  <div class="box ok">
+    <div class="bt">Resumen en una línea</div>
+    <p>GPS habilitado, <b>difusión de posición = 60 s</b>, <b>posición inteligente desactivada</b>,
+    actualización GPS 30 s, ubicación compartida en el canal y ahorro de energía apagado. Eso es todo el
+    tutorial.</p>
+  </div>
+
+  <footer class="pf">
+    Los nombres de los ajustes corresponden a la app Meshtastic 2.x (Android / iOS) y pueden variar
+    ligeramente entre versiones. Las cifras de tiempo en el aire y ocupación de canal son estimaciones
+    para LONG_MODERATE con un paquete de posición típico.
+  </footer>
+</section>
+
+</body>
+</html>
