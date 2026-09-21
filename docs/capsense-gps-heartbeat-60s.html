@@ -81,51 +81,54 @@
 
 <!-- 1 -->
 <section class="sec">
-  <h2><span class="num">1</span>Find the right settings screen</h2>
-  <p>The <b>Module configuration</b> list (MQTT, Serial, Telemetry, Neighbor Info…) is the
-  <b>wrong half</b> — position settings are not there. Tap <b>&larr;</b> to go back one level.</p>
-
-  <div class="path">Left rail <span class="arrow">&rsaquo;</span> <b>Settings</b>
-    <span class="arrow">&rsaquo;</span> your node
-    <span class="arrow">&rsaquo;</span> the config list &mdash; two groups:</div>
+  <h2><span class="num">1</span>Find the Position screen</h2>
+  <p>This app version has <b>no "Radio configuration"</b> entry. The Settings screen opens on a group
+  called <b>Configuration</b>, and the position settings are nested inside
+  <b>Device configuration</b> &mdash; not in <i>Module configuration</i> (MQTT, Serial, Telemetry&hellip;).</p>
 
   <div class="menu">
-    <div class="grp">Radio configuration <span class="tag y">&larr; Position is in here</span></div>
+    <div class="grp">Configuration <span class="tag n">Settings screen</span></div>
     <div class="row dim">User</div>
+    <div class="row dim">LoRa <span class="tag n">region · preset · TX</span></div>
     <div class="row dim">Channels <span class="tag y">step 3</span></div>
-    <div class="row dim">Device</div>
-    <div class="row hit">Position <span class="tag y">step 2</span></div>
-    <div class="row dim">Power <span class="tag y">step 4</span></div>
-    <div class="row dim">Network · Display · LoRa · Bluetooth · Security</div>
-    <div class="grp dim">Module configuration <span class="tag n">the screen you were on — skip it</span></div>
-    <div class="row dim">MQTT · Serial · External Notification · Store &amp; Forward · Range Test ·
-      Telemetry · Canned Message · Neighbor Info · Detection Sensor</div>
+    <div class="row dim">Security</div>
+    <div class="row hit">Device configuration <span class="tag y">open this &rarr; steps 2 and 4</span></div>
+    <div class="row dim">Module configuration <span class="tag n">not here</span></div>
+    <div class="row dim">Administration</div>
   </div>
 
-  <p><b>"Radio configuration" is the group heading above the list, not a row you tap</b> — that is why
-  you could not find it as a menu option. If your build does show it as a row, open it; Position is inside.
-  Alternative entry point: <b>Nodes</b> tab <span class="arrow">&rsaquo;</span> tap your node
-  <span class="arrow">&rsaquo;</span> its settings.</p>
+  <div class="path">Settings <span class="arrow">&rsaquo;</span> <b>Device configuration</b>
+    <span class="arrow">&rsaquo;</span> Device · <b>Position</b> · <b>Power</b> · Network · Display · Bluetooth</div>
+
+  <p>So: <b>Position</b> and <b>Power</b> are inside <b>Device configuration</b>;
+  <b>Channels</b> and <b>LoRa</b> are on the Settings screen itself.</p>
 </section>
 
 <!-- 2 -->
 <section class="sec">
   <h2><span class="num">2</span>Position — the heartbeat</h2>
+  <div class="path">Settings <span class="arrow">&rsaquo;</span> Device configuration
+    <span class="arrow">&rsaquo;</span> <b>Position</b></div>
   <table>
-    <tr><th style="width:36%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
-    <tr><td class="k">GPS Mode</td><td class="val">Enabled</td>
+    <tr><th style="width:20%">Card</th><th style="width:26%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
+    <tr><td class="k">Position Packet</td><td class="k">Broadcast Interval</td><td class="val">1 minute</td>
+        <td>The heartbeat. It is a <b>dropdown, not a number field</b> — the options are Unset, <b>1 minute</b>,
+        90 seconds, 5 minutes, 15 minutes, 1 hour&hellip; Default (Unset) is 15 minutes.</td></tr>
+    <tr><td class="k">Position Packet</td><td class="k">Smart Position</td><td class="val off">OFF</td>
+        <td>ON by default. It adds <b>extra</b> transmissions whenever you move &ge;100 m, on top of the
+        1-minute beacon. Off = exactly one packet per minute.</td></tr>
+    <tr><td class="k">Device GPS</td><td class="k">Fixed Position</td><td class="val off">OFF</td>
+        <td>Would ignore the real GNSS.</td></tr>
+    <tr><td class="k">Device GPS</td><td class="k">GPS Mode</td><td class="val">Enabled</td>
         <td>Not <i>Disabled</i>, not <i>Not present</i>.</td></tr>
-    <tr><td class="k">Position Broadcast (s)</td><td class="val">60</td>
-        <td>The heartbeat. Default is 15 min. <code>0</code> means "default", not "zero".</td></tr>
-    <tr><td class="k">Smart Position</td><td class="val off">OFF</td>
-        <td>ON by default. It adds <b>extra</b> transmissions whenever you move &ge;100 m (min 30 s apart),
-        on top of the 60 s beacon. Off = exactly one packet per minute, which is what you budgeted airtime for.</td></tr>
-    <tr><td class="k">Fixed Position</td><td class="val off">OFF</td><td>Would ignore the real GNSS.</td></tr>
-    <tr><td class="k">GPS Update Interval</td><td class="val">30</td>
-        <td>Default is 2 minutes — leave it and every other beacon repeats stale coordinates. Must be &le; 60.</td></tr>
-    <tr><td class="k">Position flags</td><td class="val">Minimum</td>
+    <tr><td class="k">Device GPS</td><td class="k">Update Interval</td><td class="val">40 seconds</td>
+        <td>Also a dropdown, and it has <b>no 30 s option</b>: Unset, 8 s, 20 s, <b>40 s</b>, 1 minute, 80 s,
+        2 minutes&hellip; Pick 40 s so every beacon carries a fresh fix. The default (2 minutes) would repeat
+        stale coordinates.</td></tr>
+    <tr><td class="k">Position Flags</td><td class="k">Position Flags</td><td class="val">Minimum</td>
         <td>Each flag adds bytes to 1,440 packets/day.</td></tr>
-    <tr><td class="k">GPS RX / TX pin</td><td class="val">Don't touch</td><td>Set by the stock firmware.</td></tr>
+    <tr><td class="k">Advanced Device GPS</td><td class="k">RX / TX / EN GPIO</td><td class="val">Don't touch</td>
+        <td>Set by the stock firmware.</td></tr>
   </table>
   <p>Tap <b>Save</b>. The node reboots and BLE drops for a few seconds — normal. Nothing applies until you save.</p>
 </section>
@@ -133,14 +136,15 @@
 <!-- 3 -->
 <section class="sec">
   <h2><span class="num">3</span>Channel</h2>
-  <div class="path">Radio configuration <span class="arrow">&rsaquo;</span> <b>Channels</b>
+  <div class="path">Settings <span class="arrow">&rsaquo;</span> <b>Channels</b>
     <span class="arrow">&rsaquo;</span> primary channel (index 0)</div>
   <table>
     <tr><th style="width:36%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
-    <tr><td class="k">Position precision / Location sharing</td><td class="val">Precise</td>
-        <td>This is a 0–32 precision value, not a simple toggle: <b>0 = location never sent on this channel</b>,
-        32 = full precision, values in between snap you to a privacy grid. If it reads <i>Do not share</i>,
-        the beacon carries no coordinates.</td></tr>
+    <tr><td class="k">Position enabled</td><td class="val">ON</td>
+        <td>Off sets the channel's position precision to 0 — the beacon carries no coordinates at all.</td></tr>
+    <tr><td class="k">Precise location</td><td class="val">ON</td>
+        <td>Appears once <i>Position enabled</i> is on. Turning it off replaces exact coordinates with a
+        privacy radius (a slider showing ± distance).</td></tr>
   </table>
   <p>Save. Do <b>not</b> change the channel name or PSK — the node would drop off your mesh.</p>
 </section>
@@ -148,7 +152,8 @@
 <!-- 4 -->
 <section class="sec">
   <h2><span class="num">4</span>Power</h2>
-  <div class="path">Radio configuration <span class="arrow">&rsaquo;</span> <b>Power</b></div>
+  <div class="path">Settings <span class="arrow">&rsaquo;</span> Device configuration
+    <span class="arrow">&rsaquo;</span> <b>Power</b></div>
   <table>
     <tr><th style="width:36%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
     <tr><td class="k">Power Saving</td><td class="val off">OFF</td>
@@ -175,15 +180,15 @@
   <h2><span class="num">&#9679;</span>Summary</h2>
   <table>
     <tr><th style="width:22%">Screen</th><th style="width:46%">Setting</th><th>Value</th></tr>
-    <tr><td class="k">Position</td><td>GPS Mode</td><td class="val">Enabled</td></tr>
-    <tr><td class="k">Position</td><td><b>Position Broadcast (s)</b></td><td class="val">60</td></tr>
-    <tr><td class="k">Position</td><td><b>Smart Position</b></td><td class="val off">OFF</td></tr>
-    <tr><td class="k">Position</td><td>Fixed Position</td><td class="val off">OFF</td></tr>
-    <tr><td class="k">Position</td><td>GPS Update Interval (s)</td><td class="val">30</td></tr>
-    <tr><td class="k">Channels &rsaquo; 0</td><td>Position precision</td><td class="val">Precise (32)</td></tr>
-    <tr><td class="k">Power</td><td>Power Saving</td><td class="val off">OFF</td></tr>
+    <tr><td class="k">Device config &rsaquo; Position</td><td>GPS Mode</td><td class="val">Enabled</td></tr>
+    <tr><td class="k">Device config &rsaquo; Position</td><td><b>Broadcast Interval</b></td><td class="val">1 minute</td></tr>
+    <tr><td class="k">Device config &rsaquo; Position</td><td><b>Smart Position</b></td><td class="val off">OFF</td></tr>
+    <tr><td class="k">Device config &rsaquo; Position</td><td>Fixed Position</td><td class="val off">OFF</td></tr>
+    <tr><td class="k">Device config &rsaquo; Position</td><td>Update Interval</td><td class="val">40 seconds</td></tr>
+    <tr><td class="k">Channels &rsaquo; 0</td><td>Position enabled · Precise location</td><td class="val">ON · ON</td></tr>
+    <tr><td class="k">Device config &rsaquo; Power</td><td>Power Saving</td><td class="val off">OFF</td></tr>
     <tr><td class="k">LoRa</td><td>Region · Modem Preset · TX</td><td class="val">Yours · Long Range - Moderate · ON</td></tr>
-    <tr><td class="k">Device</td><td>Role</td><td class="val">Client</td></tr>
+    <tr><td class="k">Device config &rsaquo; Device</td><td>Role</td><td class="val">Client</td></tr>
   </table>
 </section>
 
@@ -204,10 +209,10 @@
   <table>
     <tr><th style="width:36%">Symptom</th><th>Fix</th></tr>
     <tr><td class="k">Node visible, no position</td><td>No GPS fix. Go outdoors, wait 5 min. Confirm GPS Mode = Enabled.</td></tr>
-    <tr><td class="k">Beacons every 15 min</td><td>That's the default — Save didn't apply. Reconnect, re-enter 60, Save.</td></tr>
+    <tr><td class="k">Beacons every 15 min</td><td>Broadcast Interval is still Unset (= 15 min), or Save didn't apply. Reconnect and re-check the dropdown.</td></tr>
     <tr><td class="k">Extra beacons while moving</td><td>Smart Position still ON.</td></tr>
-    <tr><td class="k">Same coordinates repeated</td><td>GPS Update Interval &gt; 60 s. Set it to 30.</td></tr>
-    <tr><td class="k">Other nodes don't see it</td><td>Channel position precision at 0, or mismatched region / preset / channel PSK, or TX disabled.</td></tr>
+    <tr><td class="k">Same coordinates repeated</td><td>Update Interval is above 1 minute. Set it to 40 seconds.</td></tr>
+    <tr><td class="k">Other nodes don't see it</td><td>Channel <i>Position enabled</i> is off, or mismatched region / preset / channel PSK, or TX disabled.</td></tr>
   </table>
   <div class="box warn">
     <div class="bt">Cost on LONG_MODERATE</div>
@@ -218,8 +223,8 @@
   </div>
   <div class="box ok" style="margin-bottom:0">
     <div class="bt">Revert</div>
-    <p>Position Broadcast back to <code>900</code> s, Smart Position back ON.
-    <span style="color:var(--muted)">Field names follow the current Meshtastic app and firmware (Sept 2026);
+    <p>Broadcast Interval back to <i>Unset</i> (15 minutes), Smart Position back ON.
+    <span style="color:var(--muted)">Menu paths, field names and dropdown values verified against the Meshtastic Android app source (Sept 2026);
     airtime figures are estimates for a typical position packet.</span></p>
   </div>
 </section>
