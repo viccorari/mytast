@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <title>CapSense: GPS position every 60 s</title>
 <style>
-  @page { size: A4; margin: 12mm 12mm; }
+  @page { size: A4; margin: 12mm; }
   :root{ --ink:#14181d; --muted:#5b6673; --line:#d9dee5; --soft:#f4f6f9;
          --accent:#1f6feb; --accent-soft:#eaf1fe; --warn:#b45309; --warn-soft:#fdf3e3;
-         --ok:#15803d; --ok-soft:#eaf6ee; }
+         --ok:#15803d; --ok-soft:#eaf6ee; --red:#b42318; --red-soft:#fdeceb; }
   *{ box-sizing:border-box; }
   html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body{ font-family:"DejaVu Sans","Liberation Sans",sans-serif; font-size:9.2pt;
@@ -17,11 +17,11 @@
   code{ font-family:"DejaVu Sans Mono",monospace; font-size:8.2pt; background:var(--soft);
         border:1px solid var(--line); border-radius:3px; padding:0.5pt 3pt; white-space:nowrap; }
 
-  header.hd{ border-bottom:2.5px solid var(--accent); padding-bottom:8pt; margin-bottom:11pt; }
+  header.hd{ border-bottom:2.5px solid var(--accent); padding-bottom:8pt; margin-bottom:10pt; }
   .kicker{ font-size:7.6pt; letter-spacing:0.14em; text-transform:uppercase;
            color:var(--accent); font-weight:700; margin-bottom:4pt; }
-  h1{ font-size:19pt; letter-spacing:-0.02em; margin-bottom:5pt; }
-  .sub{ font-size:9.4pt; color:var(--muted); }
+  h1{ font-size:18.5pt; letter-spacing:-0.02em; margin-bottom:5pt; }
+  .sub{ font-size:9.2pt; color:var(--muted); }
 
   h2{ font-size:11.5pt; margin:0 0 6pt; padding-bottom:3pt; border-bottom:1.5px solid var(--ink); }
   h2 .num{ display:inline-block; background:var(--ink); color:#fff; border-radius:3px;
@@ -36,28 +36,38 @@
   tr:nth-child(even) td{ background:#fbfcfd; }
   td.k{ font-weight:700; }
   td.val{ font-weight:700; color:var(--accent); white-space:nowrap; }
-  td.val.off{ color:#b42318; }
+  td.val.off{ color:var(--red); }
 
   .path{ background:#fff; border:1px dashed var(--line); border-radius:4px; padding:5pt 8pt;
          font-size:8.6pt; margin:0 0 6pt; }
   .path .arrow{ color:var(--accent); font-weight:700; padding:0 3pt; }
 
   ol.steps{ margin:0 0 6pt; padding-left:14pt; }
-  ol.steps li{ margin-bottom:3.5pt; }
-  ul.tight{ margin:4pt 0 6pt; padding-left:14pt; }
-  ul.tight li{ margin-bottom:3pt; }
+  ol.steps li{ margin-bottom:4pt; }
 
   .box{ border-left:3px solid var(--accent); background:var(--accent-soft); padding:6pt 9pt;
         border-radius:0 4px 4px 0; margin:6pt 0; font-size:8.6pt; page-break-inside:avoid; }
   .box.warn{ border-color:var(--warn); background:var(--warn-soft); }
   .box.ok{ border-color:var(--ok); background:var(--ok-soft); }
+  .box.red{ border-color:var(--red); background:var(--red-soft); }
   .box .bt{ font-weight:700; font-size:7.8pt; text-transform:uppercase; letter-spacing:0.07em;
             margin-bottom:2.5pt; color:var(--accent); }
   .box.warn .bt{ color:var(--warn); }
   .box.ok .bt{ color:var(--ok); }
+  .box.red .bt{ color:var(--red); }
   .box p:last-child{ margin-bottom:0; }
-  footer.pf{ margin-top:10pt; padding-top:5pt; border-top:1px solid var(--line);
-             font-size:7.4pt; color:var(--muted); }
+
+  .menu{ border:1px solid var(--line); border-radius:5px; overflow:hidden; font-size:8.3pt;
+         margin:5pt 0 7pt; }
+  .menu .grp{ background:var(--soft); padding:3.5pt 8pt; font-weight:700; color:var(--ok);
+              font-size:7.8pt; border-bottom:1px solid var(--line); }
+  .menu .grp.dim{ color:var(--muted); }
+  .menu .row{ padding:3pt 8pt; border-bottom:1px solid #eef1f5; }
+  .menu .row:last-child{ border-bottom:none; }
+  .menu .row.hit{ background:var(--accent-soft); font-weight:700; color:var(--accent); }
+  .menu .row.dim{ color:var(--muted); }
+  .tag{ float:right; font-size:7.4pt; font-weight:700; }
+  .tag.y{ color:var(--accent); } .tag.n{ color:var(--muted); }
 </style>
 </head>
 <body>
@@ -65,54 +75,59 @@
 <header class="hd">
   <div class="kicker">Meshtastic · Quick setup</div>
   <h1>CapSense: broadcast GPS position every 60 s</h1>
-  <div class="sub">App-only setup (Android / iOS). Starting point: node already on the
-  <b>LONG_MODERATE</b> preset, role <b>CLIENT</b>.</div>
+  <div class="sub">App-only setup. Starting point: node already on the <b>LONG_MODERATE</b> preset,
+  role <b>CLIENT</b>.</div>
 </header>
-
-<div class="box">
-  <div class="bt">What you are configuring</div>
-  <p>Meshtastic has no "heartbeat" packet. The equivalent is the periodic <code>POSITION_APP</code>
-  broadcast — it carries the coordinates <i>and</i> refreshes the node's <i>last heard</i> across the mesh.
-  A 60 s heartbeat = <b>position broadcast interval 60 s</b> + <b>smart position off</b>.</p>
-</div>
 
 <!-- 1 -->
 <section class="sec">
-  <h2><span class="num">1</span>Connect</h2>
-  <ol class="steps">
-    <li>Power on the CapSense, wait ~15 s.</li>
-    <li>Open the Meshtastic app <span class="arrow">&rsaquo;</span> <b>Settings</b> tab
-        <span class="arrow">&rsaquo;</span> pick your device (<code>Meshtastic_XXXX</code>).
-        Pairing PIN: <code>123456</code>.</li>
-    <li>Wait for <b>Connected</b>, then open <b>Radio configuration</b>. Every setting below lives there.</li>
-  </ol>
-  <div class="box warn" style="margin-bottom:0">
-    <div class="bt">Required</div>
-    <p>Grant the app <b>Bluetooth and Location permissions</b> (Android needs Location to scan BLE),
-    and take the node <b>outdoors</b> — no GPS fix means no position is ever transmitted.</p>
+  <h2><span class="num">1</span>Find the right settings screen</h2>
+  <p>The <b>Module configuration</b> list (MQTT, Serial, Telemetry, Neighbor Info…) is the
+  <b>wrong half</b> — position settings are not there. Tap <b>&larr;</b> to go back one level.</p>
+
+  <div class="path">Left rail <span class="arrow">&rsaquo;</span> <b>Settings</b>
+    <span class="arrow">&rsaquo;</span> your node
+    <span class="arrow">&rsaquo;</span> the config list &mdash; two groups:</div>
+
+  <div class="menu">
+    <div class="grp">Radio configuration <span class="tag y">&larr; Position is in here</span></div>
+    <div class="row dim">User</div>
+    <div class="row dim">Channels <span class="tag y">step 3</span></div>
+    <div class="row dim">Device</div>
+    <div class="row hit">Position <span class="tag y">step 2</span></div>
+    <div class="row dim">Power <span class="tag y">step 4</span></div>
+    <div class="row dim">Network · Display · LoRa · Bluetooth · Security</div>
+    <div class="grp dim">Module configuration <span class="tag n">the screen you were on — skip it</span></div>
+    <div class="row dim">MQTT · Serial · External Notification · Store &amp; Forward · Range Test ·
+      Telemetry · Canned Message · Neighbor Info · Detection Sensor</div>
   </div>
+
+  <p><b>"Radio configuration" is the group heading above the list, not a row you tap</b> — that is why
+  you could not find it as a menu option. If your build does show it as a row, open it; Position is inside.
+  Alternative entry point: <b>Nodes</b> tab <span class="arrow">&rsaquo;</span> tap your node
+  <span class="arrow">&rsaquo;</span> its settings.</p>
 </section>
 
 <!-- 2 -->
 <section class="sec">
-  <h2><span class="num">2</span>Position — the actual heartbeat</h2>
-  <div class="path">Radio configuration <span class="arrow">&rsaquo;</span> <b>Position</b></div>
+  <h2><span class="num">2</span>Position — the heartbeat</h2>
   <table>
-    <tr><th style="width:42%">Setting</th><th style="width:18%">Value</th><th>Why</th></tr>
-    <tr><td class="k">GPS mode</td><td class="val">Enabled</td><td>Source of the data.</td></tr>
-    <tr><td class="k">Position broadcast interval</td><td class="val">60 s</td>
-        <td>The heartbeat. Dropdown: pick <i>1 minute</i>. Numeric field: type <code>60</code>.</td></tr>
-    <tr><td class="k">Smart position / smart broadcast</td><td class="val off">OFF</td>
-        <td><b>Critical.</b> If on, the node only transmits after moving — a stationary node stops beaconing.</td></tr>
-    <tr><td class="k">Use fixed position</td><td class="val off">OFF</td><td>Would override the real GNSS.</td></tr>
-    <tr><td class="k">GPS update interval</td><td class="val">30 s</td>
-        <td>Must be &le; broadcast interval, or you resend stale coordinates. Default is often 120 s.</td></tr>
+    <tr><th style="width:36%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
+    <tr><td class="k">GPS Mode</td><td class="val">Enabled</td>
+        <td>Not <i>Disabled</i>, not <i>Not present</i>.</td></tr>
+    <tr><td class="k">Position Broadcast (s)</td><td class="val">60</td>
+        <td>The heartbeat. Default is 15 min. <code>0</code> means "default", not "zero".</td></tr>
+    <tr><td class="k">Smart Position</td><td class="val off">OFF</td>
+        <td>ON by default. It adds <b>extra</b> transmissions whenever you move &ge;100 m (min 30 s apart),
+        on top of the 60 s beacon. Off = exactly one packet per minute, which is what you budgeted airtime for.</td></tr>
+    <tr><td class="k">Fixed Position</td><td class="val off">OFF</td><td>Would ignore the real GNSS.</td></tr>
+    <tr><td class="k">GPS Update Interval</td><td class="val">30</td>
+        <td>Default is 2 minutes — leave it and every other beacon repeats stale coordinates. Must be &le; 60.</td></tr>
     <tr><td class="k">Position flags</td><td class="val">Minimum</td>
-        <td>Each checked flag adds bytes to 1,440 packets/day. Altitude is usually enough.</td></tr>
+        <td>Each flag adds bytes to 1,440 packets/day.</td></tr>
     <tr><td class="k">GPS RX / TX pin</td><td class="val">Don't touch</td><td>Set by the stock firmware.</td></tr>
   </table>
-  <p>Tap <b>Save</b> (top right). The node reboots and BLE drops for a few seconds — that is normal.
-  <b>Nothing applies until you tap Save.</b></p>
+  <p>Tap <b>Save</b>. The node reboots and BLE drops for a few seconds — normal. Nothing applies until you save.</p>
 </section>
 
 <!-- 3 -->
@@ -121,11 +136,11 @@
   <div class="path">Radio configuration <span class="arrow">&rsaquo;</span> <b>Channels</b>
     <span class="arrow">&rsaquo;</span> primary channel (index 0)</div>
   <table>
-    <tr><th style="width:42%">Setting</th><th style="width:18%">Value</th><th>Why</th></tr>
-    <tr><td class="k">Position enabled / Location sharing</td><td class="val">ON</td>
-        <td>Without it the node never shares coordinates, no matter the interval. Most common silent failure.</td></tr>
-    <tr><td class="k">Location precision</td><td class="val">Max</td>
-        <td>Lower values snap the position to a privacy grid.</td></tr>
+    <tr><th style="width:36%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
+    <tr><td class="k">Position precision / Location sharing</td><td class="val">Precise</td>
+        <td>This is a 0–32 precision value, not a simple toggle: <b>0 = location never sent on this channel</b>,
+        32 = full precision, values in between snap you to a privacy grid. If it reads <i>Do not share</i>,
+        the beacon carries no coordinates.</td></tr>
   </table>
   <p>Save. Do <b>not</b> change the channel name or PSK — the node would drop off your mesh.</p>
 </section>
@@ -135,9 +150,9 @@
   <h2><span class="num">4</span>Power</h2>
   <div class="path">Radio configuration <span class="arrow">&rsaquo;</span> <b>Power</b></div>
   <table>
-    <tr><th style="width:42%">Setting</th><th style="width:18%">Value</th><th>Why</th></tr>
-    <tr><td class="k">Enable power saving</td><td class="val off">OFF</td>
-        <td>Sleep cycles kill the GNSS between beacons and make the heartbeat irregular.</td></tr>
+    <tr><th style="width:36%">Setting</th><th style="width:16%">Value</th><th>Why</th></tr>
+    <tr><td class="k">Power Saving</td><td class="val off">OFF</td>
+        <td>Sleep cycles cut the GNSS between beacons and make the heartbeat irregular.</td></tr>
   </table>
   <p>Save. That is the last configuration screen.</p>
 </section>
@@ -146,57 +161,66 @@
 <section class="sec">
   <h2><span class="num">5</span>Verify</h2>
   <ol class="steps">
-    <li>Outdoors, wait for the first fix — <b>1 to 5 minutes</b> on a cold start.</li>
-    <li><b>Nodes</b> tab <span class="arrow">&rsaquo;</span> your CapSense: it must show coordinates and a recent timestamp.</li>
-    <li>Watch the <b>last heard</b> counter for 3–4 minutes: it must reset <b>every ~60 s</b>.
-        If it climbs past 2, 3, 5 minutes, the beacon is not going out.</li>
-    <li><b>Real check:</b> connect the app to a <b>different node</b> in the mesh and confirm the CapSense
-        shows up there with its position refreshing every minute. That proves the LoRa path, not just BLE.</li>
+    <li>Outdoors, wait for the first fix — <b>1 to 5 minutes</b> on a cold start. The very first beacon after
+    boot is skipped until a fresh fix exists.</li>
+    <li><b>Nodes</b> tab <span class="arrow">&rsaquo;</span> your CapSense: coordinates and a recent timestamp.</li>
+    <li>Watch <b>last heard</b> for 3–4 minutes: it must reset <b>every ~60 s</b>.</li>
+    <li><b>Real check:</b> connect the app to a <b>different node</b> and confirm the CapSense shows up there
+    refreshing every minute. That proves the LoRa path, not just Bluetooth.</li>
   </ol>
 </section>
 
 <!-- Summary -->
 <section class="sec">
-  <h2><span class="num">&#9679;</span>Settings summary</h2>
+  <h2><span class="num">&#9679;</span>Summary</h2>
   <table>
-    <tr><th style="width:20%">Screen</th><th style="width:48%">Setting</th><th>Value</th></tr>
-    <tr><td class="k">Position</td><td>GPS mode</td><td class="val">Enabled</td></tr>
-    <tr><td class="k">Position</td><td><b>Position broadcast interval</b></td><td class="val">60 s</td></tr>
-    <tr><td class="k">Position</td><td><b>Smart position</b></td><td class="val off">OFF</td></tr>
-    <tr><td class="k">Position</td><td>Use fixed position</td><td class="val off">OFF</td></tr>
-    <tr><td class="k">Position</td><td>GPS update interval</td><td class="val">30 s</td></tr>
-    <tr><td class="k">Channel 0</td><td>Position enabled</td><td class="val">ON</td></tr>
-    <tr><td class="k">Power</td><td>Enable power saving</td><td class="val off">OFF</td></tr>
-    <tr><td class="k">LoRa</td><td>Region · Preset · TX enabled</td><td class="val">Your region · LONG_MODERATE · ON</td></tr>
-    <tr><td class="k">Device</td><td>Role</td><td class="val">CLIENT</td></tr>
+    <tr><th style="width:22%">Screen</th><th style="width:46%">Setting</th><th>Value</th></tr>
+    <tr><td class="k">Position</td><td>GPS Mode</td><td class="val">Enabled</td></tr>
+    <tr><td class="k">Position</td><td><b>Position Broadcast (s)</b></td><td class="val">60</td></tr>
+    <tr><td class="k">Position</td><td><b>Smart Position</b></td><td class="val off">OFF</td></tr>
+    <tr><td class="k">Position</td><td>Fixed Position</td><td class="val off">OFF</td></tr>
+    <tr><td class="k">Position</td><td>GPS Update Interval (s)</td><td class="val">30</td></tr>
+    <tr><td class="k">Channels &rsaquo; 0</td><td>Position precision</td><td class="val">Precise (32)</td></tr>
+    <tr><td class="k">Power</td><td>Power Saving</td><td class="val off">OFF</td></tr>
+    <tr><td class="k">LoRa</td><td>Region · Modem Preset · TX</td><td class="val">Yours · Long Range - Moderate · ON</td></tr>
+    <tr><td class="k">Device</td><td>Role</td><td class="val">Client</td></tr>
   </table>
 </section>
 
-<!-- Troubleshooting -->
+<!-- Why it may not beacon every 60 s -->
 <section class="sec" style="page-break-inside:auto">
-  <h2><span class="num">&#9679;</span>If it doesn't work</h2>
+  <h2><span class="num">&#9679;</span>Why it may still not beacon every 60 s</h2>
+  <p>Two firmware rules override your setting. Neither shows an error in the app — the beacon just doesn't go out.</p>
   <table>
-    <tr><th style="width:40%">Symptom</th><th>Fix</th></tr>
-    <tr><td class="k">Node visible, no position</td><td>No GPS fix. Go outdoors, wait 5 min. Confirm GPS mode = Enabled.</td></tr>
-    <tr><td class="k">Beacons every 15 min</td><td>That's the default — Save didn't apply. Reconnect, re-enter 60, Save again.</td></tr>
-    <tr><td class="k">Beacons while moving, silent at rest</td><td>Smart position is still ON. Turn it off.</td></tr>
-    <tr><td class="k">Same coordinates repeated</td><td>GPS update interval &gt; broadcast interval. Set it to 30 s.</td></tr>
-    <tr><td class="k">Other nodes don't see it</td><td>Channel <i>Position enabled</i> OFF, or mismatched region / preset / channel PSK, or TX disabled.</td></tr>
-    <tr><td class="k">Beacons arrive irregularly</td><td>Channel congestion. Lower hop limit, uncheck position flags, or raise the interval.</td></tr>
+    <tr><th style="width:36%">Rule</th><th>Effect</th></tr>
+    <tr><td class="k">Channel utilisation gate</td>
+        <td>Position packets are dropped while channel utilisation is <b>&ge; 25 %</b> for the Client role
+        (Tracker roles get 40 %). A busy mesh silently stops your heartbeat.</td></tr>
+    <tr><td class="k">Node-count scaling</td>
+        <td>Above <b>40 online nodes</b> the firmware stretches the interval automatically. On LONG_MODERATE the
+        factor is 1 + 0.16 per extra node: <b>50 nodes &rarr; ~2.6&times; (≈158 s)</b>,
+        <b>60 nodes &rarr; ~4.3&times; (≈257 s)</b>. You cannot hold 60 s on a large mesh.</td></tr>
+  </table>
+  <table>
+    <tr><th style="width:36%">Symptom</th><th>Fix</th></tr>
+    <tr><td class="k">Node visible, no position</td><td>No GPS fix. Go outdoors, wait 5 min. Confirm GPS Mode = Enabled.</td></tr>
+    <tr><td class="k">Beacons every 15 min</td><td>That's the default — Save didn't apply. Reconnect, re-enter 60, Save.</td></tr>
+    <tr><td class="k">Extra beacons while moving</td><td>Smart Position still ON.</td></tr>
+    <tr><td class="k">Same coordinates repeated</td><td>GPS Update Interval &gt; 60 s. Set it to 30.</td></tr>
+    <tr><td class="k">Other nodes don't see it</td><td>Channel position precision at 0, or mismatched region / preset / channel PSK, or TX disabled.</td></tr>
   </table>
   <div class="box warn">
-    <div class="bt">Cost of a 60 s beacon on LONG_MODERATE</div>
-    <p>That preset is slow (SF11 / 125 kHz, ~0.34 kbps): each position packet occupies the channel for
-    roughly 1.5–2 s, so one node alone sits at ~2–3 % channel utilisation continuously, multiplied by every
-    rebroadcast and hop. Fine for one tracked node; it congests the mesh if several nodes do it. Battery life
-    with the GNSS always on is measured in hours — keep it on USB or solar, or raise the interval to
-    120–300 s once you no longer need the fast rate.</p>
+    <div class="bt">Cost on LONG_MODERATE</div>
+    <p>0.34 kbps: each position packet holds the channel for roughly 1.5–2 s, so one node alone sits near
+    2–3 % utilisation continuously, multiplied by every rebroadcast and hop — which feeds straight into the
+    25 % gate above. Battery with the GNSS always on lasts hours, not days. Use 60 s only on the node you are
+    actively tracking; 120–300 s otherwise.</p>
   </div>
   <div class="box ok" style="margin-bottom:0">
     <div class="bt">Revert</div>
-    <p>Position broadcast interval back to <code>900</code> s, smart position back ON.
-    <span style="color:var(--muted)">Setting names follow Meshtastic app 2.x and may differ slightly
-    between versions; airtime figures are estimates for a typical position packet on LONG_MODERATE.</span></p>
+    <p>Position Broadcast back to <code>900</code> s, Smart Position back ON.
+    <span style="color:var(--muted)">Field names follow the current Meshtastic app and firmware (Sept 2026);
+    airtime figures are estimates for a typical position packet.</span></p>
   </div>
 </section>
 
