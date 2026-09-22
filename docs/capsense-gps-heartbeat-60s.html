@@ -2,221 +2,129 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>CapSense: GPS position every 60 s</title>
+<title>GPS position every 60 s</title>
 <style>
-  @page { size: A4; margin: 12mm; }
+  @page { size: A4; margin: 13mm; }
   :root{ --ink:#14181d; --muted:#5b6673; --line:#d9dee5; --soft:#f4f6f9;
          --accent:#1f6feb; --accent-soft:#eaf1fe; --warn:#b45309; --warn-soft:#fdf3e3;
-         --ok:#15803d; --ok-soft:#eaf6ee; --red:#b42318; --red-soft:#fdeceb; }
+         --ok:#15803d; --red:#b42318; }
   *{ box-sizing:border-box; }
   html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  body{ font-family:"DejaVu Sans","Liberation Sans",sans-serif; font-size:9.1pt;
-        line-height:1.4; color:var(--ink); margin:0; }
+  body{ font-family:"DejaVu Sans","Liberation Sans",sans-serif; font-size:9.4pt;
+        line-height:1.42; color:var(--ink); margin:0; }
   h1,h2{ line-height:1.2; margin:0; }
   p{ margin:0 0 6pt; }
-  code{ font-family:"DejaVu Sans Mono",monospace; font-size:8pt; background:var(--soft);
+  code{ font-family:"DejaVu Sans Mono",monospace; font-size:8.2pt; background:var(--soft);
         border:1px solid var(--line); border-radius:3px; padding:0.5pt 3pt; white-space:nowrap; }
 
-  header.hd{ border-bottom:2.5px solid var(--accent); padding-bottom:8pt; margin-bottom:10pt; }
+  header.hd{ border-bottom:2.5px solid var(--accent); padding-bottom:8pt; margin-bottom:11pt; }
   .kicker{ font-size:7.6pt; letter-spacing:0.14em; text-transform:uppercase;
            color:var(--accent); font-weight:700; margin-bottom:4pt; }
-  h1{ font-size:18pt; letter-spacing:-0.02em; margin-bottom:5pt; }
+  h1{ font-size:19pt; letter-spacing:-0.02em; margin-bottom:5pt; }
   .sub{ font-size:9pt; color:var(--muted); }
 
-  h2{ font-size:11.2pt; margin:0 0 6pt; padding-bottom:3pt; border-bottom:1.5px solid var(--ink); }
+  h2{ font-size:11.5pt; margin:0 0 6pt; padding-bottom:3pt; border-bottom:1.5px solid var(--ink); }
   h2 .num{ display:inline-block; background:var(--ink); color:#fff; border-radius:3px;
-           font-size:8.2pt; padding:1pt 5.5pt; margin-right:5pt; vertical-align:1.5pt; }
-  .sec{ margin-bottom:10pt; page-break-inside:avoid; }
+           font-size:8.4pt; padding:1pt 5.5pt; margin-right:5pt; vertical-align:1.5pt; }
+  .sec{ margin-bottom:12pt; page-break-inside:avoid; }
 
-  table{ width:100%; border-collapse:collapse; font-size:8.4pt; margin:5pt 0 6pt;
-         page-break-inside:avoid; }
-  th{ background:var(--ink); color:#fff; text-align:left; padding:4pt 6pt; font-size:7.5pt;
+  table{ width:100%; border-collapse:collapse; font-size:8.6pt; margin:5pt 0 7pt; }
+  th{ background:var(--ink); color:#fff; text-align:left; padding:4pt 6pt; font-size:7.6pt;
       text-transform:uppercase; letter-spacing:0.05em; }
-  td{ padding:4pt 6pt; border-bottom:1px solid var(--line); vertical-align:top; }
+  td{ padding:4.5pt 6pt; border-bottom:1px solid var(--line); vertical-align:top; }
   tr:nth-child(even) td{ background:#fbfcfd; }
   td.k{ font-weight:700; }
   td.now{ color:var(--red); font-weight:700; white-space:nowrap; }
   td.set{ color:var(--accent); font-weight:700; white-space:nowrap; }
-  td.ok{ color:var(--ok); font-weight:700; white-space:nowrap; }
-  .en{ color:var(--muted); font-size:7.6pt; display:block; }
+  .es{ color:var(--muted); font-size:7.7pt; display:block; font-style:italic; }
 
-  .path{ background:#fff; border:1px dashed var(--line); border-radius:4px; padding:5pt 8pt;
-         font-size:8.5pt; margin:0 0 6pt; }
-  .path .arrow{ color:var(--accent); font-weight:700; padding:0 3pt; }
+  .path{ background:#fff; border:1px dashed var(--line); border-radius:4px; padding:6pt 9pt;
+         font-size:9pt; margin:0 0 7pt; }
+  .path .arrow{ color:var(--accent); font-weight:700; padding:0 4pt; }
 
-  ol.steps{ margin:0 0 6pt; padding-left:14pt; }
+  ol.steps{ margin:0 0 6pt; padding-left:15pt; }
   ol.steps li{ margin-bottom:4.5pt; }
 
-  .box{ border-left:3px solid var(--accent); background:var(--accent-soft); padding:6pt 9pt;
-        border-radius:0 4px 4px 0; margin:6pt 0; font-size:8.5pt; page-break-inside:avoid; }
-  .box.warn{ border-color:var(--warn); background:var(--warn-soft); }
-  .box.ok{ border-color:var(--ok); background:var(--ok-soft); }
+  .box{ border-left:3px solid var(--warn); background:var(--warn-soft); padding:6pt 9pt;
+        border-radius:0 4px 4px 0; margin:7pt 0 0; font-size:8.5pt; }
   .box .bt{ font-weight:700; font-size:7.7pt; text-transform:uppercase; letter-spacing:0.07em;
-            margin-bottom:2.5pt; color:var(--accent); }
-  .box.warn .bt{ color:var(--warn); }
-  .box.ok .bt{ color:var(--ok); }
+            margin-bottom:2.5pt; color:var(--warn); }
   .box p:last-child{ margin-bottom:0; }
+  footer.pf{ margin-top:11pt; padding-top:5pt; border-top:1px solid var(--line);
+             font-size:7.6pt; color:var(--muted); }
 </style>
 </head>
 <body>
 
 <header class="hd">
-  <div class="kicker">Meshtastic · Guía verificada contra tu nodo</div>
-  <h1>Posición GPS en broadcast cada 60 s</h1>
-  <div class="sub">Revisado contra tus capturas: nodo <b>Meshtastic 02c2</b> · región <b>United States</b> ·
-  preset <b>LONG_MODERATE</b> · rol <b>CLIENT</b> · canal primario <b>LongMod</b>.
-  Etiquetas en <b>español</b> tal como salen en tu app (en gris, el nombre en inglés).</div>
+  <div class="kicker">Meshtastic · Quick guide</div>
+  <h1>Broadcast GPS position every 60 s</h1>
+  <div class="sub">Node already on <b>LONG_MODERATE</b>, role <b>CLIENT</b>, region <b>US</b>,
+  primary channel sharing location. Setting names in English, with the Spanish label underneath.</div>
 </header>
 
-<!-- 1 -->
 <section class="sec">
-  <h2><span class="num">1</span>Solo cambian 3 ajustes</h2>
-  <p>Todo lo demás de tu configuración ya está correcto (ver punto 4). Los tres están en la
-  <b>misma pantalla</b>.</p>
-  <div class="path"><b>Ajustes</b> <span class="arrow">&rsaquo;</span>
-    <b>Configuración del dispositivo</b> <span class="arrow">&rsaquo;</span> <b>Posición</b></div>
+  <h2><span class="num">1</span>Open the Position screen</h2>
+  <div class="path"><b>Settings</b> <span class="es" style="display:inline">(Ajustes)</span>
+    <span class="arrow">&rsaquo;</span> <b>Device configuration</b>
+    <span class="es" style="display:inline">(Configuración del dispositivo)</span>
+    <span class="arrow">&rsaquo;</span> <b>Position</b>
+    <span class="es" style="display:inline">(Posición)</span></div>
+  <p>Not <i>Module configuration</i> — that one holds MQTT, Telemetry and the rest of the modules.</p>
+</section>
+
+<section class="sec">
+  <h2><span class="num">2</span>Change these three</h2>
   <table>
-    <tr><th style="width:24%">Tarjeta</th><th style="width:30%">Ajuste</th>
-        <th style="width:20%">Ahora tienes</th><th>Ponlo en</th></tr>
-    <tr><td class="k">Paquetes de posición<span class="en">Position Packet</span></td>
-        <td class="k">Intervalo de transmisión<span class="en">Broadcast Interval</span></td>
+    <tr><th style="width:22%">Card</th><th style="width:30%">Setting</th>
+        <th style="width:18%">Default</th><th>Set to</th></tr>
+    <tr><td class="k">Position Packet<span class="es">Paquetes de posición</span></td>
+        <td class="k">Broadcast Interval<span class="es">Intervalo de transmisión</span></td>
         <td class="now">15 minutes</td><td class="set">1 minute</td></tr>
-    <tr><td class="k">Paquetes de posición</td>
-        <td class="k">Ubicación inteligente<span class="en">Smart Position</span></td>
-        <td class="now">Activado</td><td class="set">DESACTIVADO</td></tr>
-    <tr><td class="k">Dispositivo GPS<span class="en">Device GPS</span></td>
+    <tr><td class="k">Position Packet</td>
+        <td class="k">Smart Position<span class="es">Ubicación inteligente</span></td>
+        <td class="now">ON</td><td class="set">OFF</td></tr>
+    <tr><td class="k">Device GPS<span class="es">Dispositivo GPS</span></td>
         <td class="k">GPS Polling Interval</td>
         <td class="now">2 minutes</td><td class="set">40 seconds</td></tr>
   </table>
+  <p>All three are dropdowns or switches — nothing is typed in. Then tap <b>Save</b>: the node reboots and
+  Bluetooth drops for a few seconds. Nothing applies until you save.</p>
 </section>
 
-<!-- 2 -->
 <section class="sec">
-  <h2><span class="num">2</span>Paso a paso</h2>
+  <h2><span class="num">3</span>Watch for these while setting it</h2>
   <ol class="steps">
-    <li>Barra inferior <span class="arrow">&rsaquo;</span> icono de <b>engranaje</b> (Ajustes). Arriba debe
-    leerse <b>Meshtastic 02c2</b> y el chip morado <code>02c2</code>: eso confirma que estás editando
-    <b>ese</b> nodo y no otro.</li>
-    <li>Grupo <b>Configuración</b> <span class="arrow">&rsaquo;</span> toca
-    <b>Configuración del dispositivo</b> (la quinta fila, icono de radio).
-    <b>No</b> es <i>Configuración de módulo</i>: ahí están MQTT, Telemetría, etc., y la posición no está.</li>
-    <li>Toca <b>Posición</b> (segunda fila, icono de pin).</li>
-    <li>Tarjeta <b>Paquetes de posición</b> <span class="arrow">&rsaquo;</span>
-    <b>Intervalo de transmisión</b>: abre el desplegable y elige <b>1 minute</b>.
-    Es un desplegable, no se escribe el número. La lista es: <i>Sin configurar</i>, <b>1 minute</b>,
-    90 seconds, 5 minutes, 15 minutes, 1 hour&hellip;</li>
-    <li>Apaga <b>Ubicación inteligente</b>. <b>Confirmación visual:</b> al apagarlo desaparecen los campos
-    <i>Smart Interval</i> (30 seconds) y <i>Smart Distance</i> (100) que ahora ves debajo. Si siguen ahí,
-    el interruptor no se apagó.</li>
-    <li>Baja a la tarjeta <b>Dispositivo GPS</b> <span class="arrow">&rsaquo;</span>
-    <b>GPS Polling Interval</b>: elige <b>40 seconds</b>. La lista es <i>Sin configurar</i>, 8 seconds,
-    20 seconds, <b>40 seconds</b>, 1 minute, 80 seconds, 2 minutes&hellip; <b>No hay opción de 30 s</b>,
-    y no bajes de 10 s: el propio texto de la app avisa <i>"&lt;10sec keeps GPS on"</i> (el GPS se queda
-    encendido de forma permanente y se come la batería).</li>
-    <li>Pulsa <b>Guardar</b>. El nodo se reinicia y el Bluetooth se cae unos segundos: es normal.
-    <b>Sin guardar no se aplica nada.</b></li>
-    <li>Vuelve a entrar en <b>Posición</b> y comprueba que sigue diciendo <b>1 minute</b>. Ese es el
-    valor que el nodo aceptó de verdad.</li>
+    <li><b>Broadcast Interval</b> has no free-text field. Pick <b>1 minute</b> from the list
+    (Unset, 1 minute, 90 seconds, 5 minutes, 15 minutes…).</li>
+    <li><b>Smart Position off is confirmed</b> when the <i>Smart Interval</i> and <i>Smart Distance</i>
+    fields disappear. If they are still there, the switch did not turn off.</li>
+    <li><b>GPS Polling Interval has no 30 s option</b> — the list is 8 s, 20 s, <b>40 s</b>, 1 minute,
+    80 s, 2 minutes… Never go below 10 s: that keeps the GPS powered on permanently.</li>
+    <li>Reopen <b>Position</b> after the reboot and confirm it still reads <b>1 minute</b>. That is the
+    value the node actually accepted.</li>
   </ol>
 </section>
 
-<!-- 3 -->
 <section class="sec">
-  <h2><span class="num">3</span>Opcional: aligerar el paquete</h2>
-  <p>Tu tarjeta <b>Marcas de posición</b> <span class="en" style="display:inline">(Position Flags)</span>
-  está en <code>811</code>, que es la suma de seis campos opcionales:</p>
-  <table>
-    <tr><th style="width:52%">811 = 1 + 2 + 8 + 32 + 256 + 512</th><th>Recomendación</th></tr>
-    <tr><td>ALTITUDE (1) · ALTITUDE_MSL (2)</td><td class="ok">Déjalos</td></tr>
-    <tr><td>DOP (8) · SATINVIEW (32) · HEADING (256) · SPEED (512)</td>
-        <td class="set">Desmárcalos &rarr; queda <code>3</code></td></tr>
-  </table>
-  <p>Es un desplegable con casillas. Cada campo que quitas son bytes menos en <b>1.440 paquetes al día</b>,
-  y en LONG_MODERATE el tamaño del paquete se paga caro en tiempo de aire. Quítalos solo si no usas
-  rumbo/velocidad en tu aplicación.</p>
-</section>
-
-<!-- 4 -->
-<section class="sec">
-  <h2><span class="num">4</span>Ya está bien — no lo toques</h2>
-  <p>Verificado en tus capturas:</p>
-  <table>
-    <tr><th style="width:30%">Pantalla</th><th style="width:42%">Ajuste</th><th>Tu valor</th></tr>
-    <tr><td class="k">Posición &rsaquo; Dispositivo GPS</td><td>Modo GPS (dispositivo físico)</td><td class="ok">ENABLED</td></tr>
-    <tr><td class="k">Posición &rsaquo; Dispositivo GPS</td><td>Posición Fijada</td><td class="ok">Desactivada</td></tr>
-    <tr><td class="k">Consumo</td><td>Activar el modo ahorro de energía</td><td class="ok">Desactivado</td></tr>
-    <tr><td class="k">Dispositivo</td><td>Rol del dispositivo</td><td class="ok">CLIENT</td></tr>
-    <tr><td class="k">Dispositivo</td><td>Modo de retransmisión · Info del nodo</td><td class="ok">ALL · 3 horas</td></tr>
-    <tr><td class="k">LoRa</td><td>Región · Predefinidos</td><td class="ok">United States · LONG_MODERATE</td></tr>
-    <tr><td class="k">LoRa</td><td>Transmisión Activa · Número de saltos</td><td class="ok">Activada · 3</td></tr>
-    <tr><td class="k">Canales</td><td>LongMod (0, Primario) — <b>icono de pin</b></td><td class="ok">Compartir ubicación ON</td></tr>
-    <tr><td class="k">Bluetooth</td><td>Modo de emparejamiento · Pin fijo</td><td class="ok">FIXED_PIN · 123456</td></tr>
-  </table>
-  <div class="box ok" style="margin-bottom:0">
-    <div class="bt">"A todos los nodos de alrededor" — ya lo hace</div>
-    <p>Un paquete de posición es un <b>broadcast</b>: no va dirigido a nadie en concreto. Todo nodo a tu
-    alcance que use el canal <b>LongMod</b> lo recibe, y con <b>Número de saltos = 3</b> los vecinos lo
-    retransmiten hasta 3 saltos más allá. No hay nada extra que activar. El único requisito por canal es el
-    <b>icono de pin</b> de la lista de Canales (= <i>Compartir ubicación</i>), que ya tienes; si quieres verlo
-    en detalle, toca el canal: dentro están <b>Posición activada</b> y <b>Ubicación precisa</b>. El botón
-    <b>(i)</b> junto a "Primario" explica los iconos.</p>
-  </div>
-</section>
-
-<!-- 5 -->
-<section class="sec">
-  <h2><span class="num">5</span>Comprobar</h2>
+  <h2><span class="num">4</span>Verify</h2>
   <ol class="steps">
-    <li>Saca el nodo al exterior y espera el primer <i>fix</i>: <b>1 a 5 minutos</b> en arranque en frío.
-    Hasta que no haya posición fresca, el firmware <b>no emite</b> el primer paquete.</li>
-    <li>Pestaña <b>Nodos</b> <span class="arrow">&rsaquo;</span> tu nodo: debe mostrar coordenadas y una hora
-    reciente.</li>
-    <li>Mira el contador de <b>visto hace&hellip;</b> durante 3–4 minutos: tiene que reiniciarse
-    <b>cada ~60 s</b>.</li>
-    <li><b>La prueba que vale:</b> conecta la app a <b>otro nodo</b> de la malla y comprueba desde ahí que
-    el 02c2 aparece con su posición refrescándose cada minuto. Eso demuestra el camino por LoRa, no solo
-    por Bluetooth.</li>
+    <li>Outdoors, wait for the first fix: <b>1 to 5 minutes</b> cold start. No fix means nothing is sent.</li>
+    <li><b>Nodes</b> tab: the <b>last heard</b> counter must reset <b>every ~60 s</b>.</li>
+    <li>Connect the app to <b>another node</b> and check it there too — that proves the LoRa path, not just
+    Bluetooth.</li>
   </ol>
-</section>
-
-<!-- 6 -->
-<section class="sec" style="page-break-inside:auto">
-  <h2><span class="num">6</span>Lo que puede impedir los 60 s</h2>
-  <p>Dos reglas del firmware mandan sobre tu ajuste, y <b>ninguna avisa en la app</b>: el paquete
-  simplemente no sale.</p>
-  <table>
-    <tr><th style="width:34%">Regla</th><th>Efecto</th></tr>
-    <tr><td class="k">Puerta de utilización de canal</td>
-        <td>Con rol <b>CLIENT</b> los paquetes de posición se descartan mientras la utilización del canal
-        esté en <b>&ge; 25 %</b> (los roles Tracker tienen 40 %). Una malla cargada corta el latido en silencio.</td></tr>
-    <tr><td class="k">Escalado por nº de nodos</td>
-        <td>Por encima de <b>40 nodos online</b> el firmware estira el intervalo solo. En LONG_MODERATE el
-        factor es 1 + 0,16 por nodo extra: <b>50 nodos &rarr; ≈158 s</b>, <b>60 nodos &rarr; ≈257 s</b>.
-        En una malla grande los 60 s no se sostienen.</td></tr>
-  </table>
-  <table>
-    <tr><th style="width:34%">Síntoma</th><th>Causa</th></tr>
-    <tr><td class="k">Aparece el nodo pero sin posición</td><td>Sin fix de GPS. Exterior, 5 minutos.</td></tr>
-    <tr><td class="k">Sigue emitiendo cada 15 min</td><td>El desplegable volvió a <i>15 minutes</i>: no se guardó.</td></tr>
-    <tr><td class="k">Emite de más al moverte</td><td><b>Ubicación inteligente</b> sigue activada: añade envíos extra cada vez que te desplazas 100 m.</td></tr>
-    <tr><td class="k">Coordenadas repetidas</td><td><b>GPS Polling Interval</b> por encima de 1 minute.</td></tr>
-    <tr><td class="k">Otros nodos no lo ven</td><td>Distinta región, distinto preset o distinta clave de canal.</td></tr>
-  </table>
-  <div class="box warn">
-    <div class="bt">Coste en LONG_MODERATE</div>
-    <p>0,34 kbps: cada paquete de posición ocupa el canal <b>1,5–2 s</b>, así que un solo nodo se sitúa
-    cerca del <b>2–3 %</b> de utilización de forma continua, multiplicado por cada retransmisión y cada
-    salto — y eso alimenta directamente la puerta del 25 % de arriba. En <b>United States no hay límite
-    legal de ciclo de trabajo</b> (a diferencia de Europa), así que el techo real es esa puerta, no la
-    normativa. Con el GNSS siempre encendido la autonomía se mide en horas: usa 60 s solo en el nodo que
-    estés siguiendo de verdad, y 120–300 s para vigilancia continua.</p>
+  <div class="box">
+    <div class="bt">Two firmware rules that override your 60 s — silently</div>
+    <p><b>Channel utilisation gate:</b> with the Client role, position packets are dropped while channel
+    utilisation is ≥ 25 % (Tracker roles get 40 %).<br>
+    <b>Node-count scaling:</b> above 40 online nodes the interval is stretched automatically — on
+    LONG_MODERATE, 50 nodes ≈ 158 s and 60 nodes ≈ 257 s.<br>
+    Each packet holds the channel 1.5–2 s on this preset, so one node alone sits near 2–3 % utilisation
+    continuously. Use 60 s only on the node you are actively tracking; 120–300 s otherwise.</p>
   </div>
-  <div class="box ok" style="margin-bottom:0">
-    <div class="bt">Volver atrás</div>
-    <p><b>Intervalo de transmisión</b> a <i>15 minutes</i> y <b>Ubicación inteligente</b> otra vez activada.
-    <span style="color:var(--muted)">Rutas, etiquetas y valores de los desplegables verificados contra el
-    código de la app Meshtastic Android y el firmware (septiembre 2026).</span></p>
-  </div>
+  <footer class="pf">To revert: Broadcast Interval back to 15 minutes, Smart Position back ON.
+  Paths, labels and dropdown values verified against the Meshtastic Android app source and firmware.</footer>
 </section>
 
 </body>
