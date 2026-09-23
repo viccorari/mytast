@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CAP admin keys</title>
+<style>
+  @page { size: A4; margin: 11mm 12mm; }
+  :root{ --ink:#14181d; --muted:#5b6673; --line:#d9dee5; --soft:#f4f6f9;
+         --accent:#1f6feb; --accent-soft:#eaf1fe; --warn:#b45309; --warn-soft:#fdf3e3;
+         --ok:#15803d; --ok-soft:#eaf6ee; --red:#b42318; --red-soft:#fdeceb; }
+  *{ box-sizing:border-box; }
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{ font-family:"DejaVu Sans","Liberation Sans",sans-serif; font-size:9pt;
+        line-height:1.38; color:var(--ink); margin:0; }
+  h1,h2{ line-height:1.2; margin:0; }
+  p{ margin:0 0 6pt; }
+  code{ font-family:"DejaVu Sans Mono",monospace; font-size:8.2pt; background:var(--soft);
+        border:1px solid var(--line); border-radius:3px; padding:0.5pt 3pt; white-space:nowrap; }
+
+  header.hd{ border-bottom:2.5px solid var(--accent); padding-bottom:7pt; margin-bottom:9pt; }
+  .kicker{ font-size:7.6pt; letter-spacing:0.14em; text-transform:uppercase;
+           color:var(--accent); font-weight:700; margin-bottom:4pt; }
+  h1{ font-size:18.5pt; letter-spacing:-0.02em; margin-bottom:5pt; }
+  .sub{ font-size:9pt; color:var(--muted); }
+
+  h2{ font-size:11.2pt; margin:0 0 6pt; padding-bottom:3pt; border-bottom:1.5px solid var(--ink); }
+  h2 .num{ display:inline-block; background:var(--ink); color:#fff; border-radius:3px;
+           font-size:8.2pt; padding:1pt 5.5pt; margin-right:5pt; vertical-align:1.5pt; }
+  .sec{ margin-bottom:9pt; page-break-inside:avoid; }
+
+  .keys{ border:1px solid var(--line); border-radius:6px; overflow:hidden; margin:4pt 0 6pt; }
+  .keyrow{ padding:7pt 10pt; border-bottom:1px solid var(--line); }
+  .keyrow:last-child{ border-bottom:none; }
+  .keyrow .who{ font-size:8pt; color:var(--muted); margin-bottom:3pt; }
+  .keyrow .who b{ color:var(--ink); font-size:8.8pt; }
+  .key{ font-family:"DejaVu Sans Mono",monospace; font-size:11.2pt; letter-spacing:0.02em;
+        background:var(--soft); border:1px solid var(--line); border-radius:4px;
+        padding:4pt 7pt; display:inline-block; }
+  .key .amb{ background:#fde68a; border-radius:2px; padding:0 1pt; }
+  .legend{ font-size:7.8pt; color:var(--muted); margin-top:3pt; }
+
+  table{ width:100%; border-collapse:collapse; font-size:8.5pt; margin:5pt 0 6pt; }
+  th{ background:var(--ink); color:#fff; text-align:left; padding:4pt 6pt; font-size:7.5pt;
+      text-transform:uppercase; letter-spacing:0.05em; }
+  td{ padding:4.5pt 6pt; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:nth-child(even) td{ background:#fbfcfd; }
+  td.k{ font-weight:700; }
+
+  .path{ background:#fff; border:1px dashed var(--line); border-radius:4px; padding:5pt 8pt;
+         font-size:8.8pt; margin:0 0 6pt; }
+  .path .arrow{ color:var(--accent); font-weight:700; padding:0 3pt; }
+
+  ol.steps{ margin:0 0 6pt; padding-left:15pt; }
+  ol.steps li{ margin-bottom:3.5pt; }
+  ul.tight{ margin:3pt 0 6pt; padding-left:14pt; }
+  ul.tight li{ margin-bottom:3pt; }
+
+  .box{ border-left:3px solid var(--accent); background:var(--accent-soft); padding:6pt 9pt;
+        border-radius:0 4px 4px 0; margin:6pt 0; font-size:8.5pt; page-break-inside:avoid; }
+  .box.warn{ border-color:var(--warn); background:var(--warn-soft); }
+  .box.red{ border-color:var(--red); background:var(--red-soft); }
+  .box .bt{ font-weight:700; font-size:7.7pt; text-transform:uppercase; letter-spacing:0.07em;
+            margin-bottom:2.5pt; color:var(--accent); }
+  .box.warn .bt{ color:var(--warn); }
+  .box.red .bt{ color:var(--red); }
+  .box p:last-child{ margin-bottom:0; }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="kicker">Meshtastic · Remote administration</div>
+  <h1>Add the Suriname admin keys to a CAP node</h1>
+  <div class="sub">App only. Authorizes the <b>Suriname 01</b> and <b>Suriname 02</b> controllers to configure
+  this CAP over LoRa. Repeat on every CAP you want to manage remotely.</div>
+</header>
+
+<section class="sec">
+  <h2><span class="num">1</span>The two keys</h2>
+  <div class="keys">
+    <div class="keyrow">
+      <div class="who"><b>Suriname 01</b> · host SCU-b827eb3a09e4 · RAK4631 on USB</div>
+      <span class="key">doDt9vOuNXfCXzv5qNgspLC3RZzB3sgfJhZAt4zeITQ=</span>
+    </div>
+    <div class="keyrow">
+      <div class="who"><b>Suriname 02</b> · host SCU-b827eb399d48 · node on the Pi UART pins</div>
+      <span class="key">JcTy<span class="amb">I</span>8whkg<span class="amb">l</span>D+o8i3WviOdYGcNbOLJYoGpGaL544S<span class="amb">1</span>w=</span>
+      <div class="legend">Highlighted characters are easy to confuse: <b>I</b> = capital i ·
+      <b>l</b> = lowercase L · <b>1</b> = digit one. The <b>O</b>s in both keys are letters, not zeros.</div>
+    </div>
+  </div>
+  <p>Each key is <b>44 characters</b> and ends in <code>=</code>. <b>Copy and paste them — never retype.</b>
+  A single wrong character makes remote admin fail silently, with no error shown.</p>
+</section>
+
+<section class="sec">
+  <h2><span class="num">2</span>Add them in the app</h2>
+  <ol class="steps">
+    <li>Connect the app by Bluetooth <b>to the CAP</b> — not to a Suriname node. Check that the node name at the
+    top of <b>Settings</b> is the CAP you mean to configure.</li>
+    <li>Open <b>Settings</b> <span class="arrow" style="color:var(--accent);font-weight:700">&rsaquo;</span> <b>Security</b>.</li>
+    <li>Scroll down past <i>Packet authenticity</i> and <i>Direct Message Key</i> to the <b>Admin Keys</b> card.
+    Its field is <b>Admin Key</b> — <i>"The public key authorized to send admin messages to this node."</i>
+    It is a public key, not a password.</li>
+    <li>Tap <b>Add</b> and paste the <b>Suriname 01</b> key.</li>
+    <li>Tap <b>Add</b> again and paste the <b>Suriname 02</b> key. A node holds up to 3 admin keys, so one slot
+    stays free.</li>
+    <li>Leave <b>Managed Device</b> (in the <i>Administration</i> card, further down) <b>OFF</b>.</li>
+    <li>Tap <b>Save &amp; restart</b>. The CAP reboots and Bluetooth reconnects after about 20 seconds.</li>
+  </ol>
+  <div class="box red">
+    <div class="bt">Do not enable Managed Device</div>
+    <p>It locks all local settings: the node can then only be changed by remote admin. If a key is wrong or both
+    controllers are unreachable, the only way back is a physical factory reset.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <h2><span class="num">3</span>Check</h2>
+  <ul class="tight">
+    <li>Reopen <b>Settings › Security</b>: the <b>Admin Keys</b> card lists both keys.</li>
+    <li>Open the <b>Nodes</b> tab on the CAP: both Suriname nodes must appear, and each one's node details must
+    show a <b>Public Key</b>. The CAP needs that stored key to decrypt their admin messages.</li>
+    <li>After the first successful remote admin session, the CAP marks that controller as a <b>favorite</b>
+    automatically. That is expected, and a useful sign that it worked.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2><span class="num">4</span>If remote admin fails</h2>
+  <table>
+    <tr><th style="width:38%">Cause</th><th>Fix</th></tr>
+    <tr><td class="k">Typo in a key</td>
+        <td>Delete it in <b>Admin Keys</b>, paste it again, <b>Save &amp; restart</b>.</td></tr>
+    <tr><td class="k">The CAP has no public key for the controller</td>
+        <td>On the CAP: <b>Nodes</b> › the Suriname node › request its user info, then retry.</td></tr>
+    <tr><td class="k">The controller has no public key for the CAP</td>
+        <td>Same check from the controller side: the CAP must appear in its node list with a key.</td></tr>
+    <tr><td class="k">A controller's key was regenerated</td>
+        <td>Its public key changed. Replace the old key in <b>Admin Keys</b> with the new one.</td></tr>
+  </table>
+</section>
+
+</body>
+</html>
