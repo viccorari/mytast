@@ -207,7 +207,7 @@ uint64_t nextMilestone(uint64_t v, uint64_t& prev) {
 }
 
 void drawMilestone(uint64_t subs, bool hidden) {
-  int y = SC_Y + 80, x = SC_X + P, labelW = 150;
+  int y = SC_Y + 84, x = SC_X + P, labelW = 150;
   int barW = SC_W - 2 * P - labelW;
   tft.fillRect(x, y - 4, SC_W - 2 * P, 16, C_CARD);
   if (hidden) return;
@@ -278,9 +278,9 @@ void uiShowStats(const ChannelStats& st, int64_t subsDelta, int64_t viewsDelta) 
   }
 
   if (st.subscribersHidden) {
-    drawValue(SC_X, SC_Y, SC_W, 40, "Oculto", {&FreeSansBold24pt7b});
+    drawValue(SC_X, SC_Y, SC_W, 46, "Oculto", {&FreeSansBold24pt7b});
   } else {
-    drawValue(SC_X, SC_Y, SC_W, 40, withThousands(st.subscribers),
+    drawValue(SC_X, SC_Y, SC_W, 46, withThousands(st.subscribers),
               {&FreeSansBold24pt7b, &FreeSansBold18pt7b});
     drawDelta(SC_X, SC_Y, SC_W, subsDelta, " desde el inicio");
   }

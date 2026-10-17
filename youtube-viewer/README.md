@@ -19,6 +19,10 @@ Pantalla que muestra los **suscriptores**, las **vistas** y los **vídeos** de u
 └──────────────────────────────────────────────┘
 ```
 
+![Vista previa](docs/preview.png)
+
+*Simulación a escala 2x hecha con `docs/mockup.py` (misma fuente FreeSans y colores RGB565 que el firmware).*
+
 ## Viabilidad
 
 **Sí, se puede montar con este hardware**, pero hay que ajustarse a una limitación.
