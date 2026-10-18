@@ -117,3 +117,10 @@ Después copia `src/*.cpp`, `src/*.h` e `include/config.h` en la carpeta del ske
 ## Nota de seguridad
 
 Las conexiones HTTPS no verifican el certificado (`setInsecure()`), así no hay que actualizar certificados raíz en el firmware. Lo que se consulta son datos públicos; restringe la clave de API a la YouTube Data API para limitar lo que se podría hacer con ella.
+
+## Propuesta: versión táctil (aún no implementada)
+
+Este esquema y estas pantallas son una propuesta: el firmware actual **no** usa el táctil. Antes de conectarlo así hay que hacer el cambio de eFuse que se explica en el esquema.
+
+- Esquema de conexiones con táctil: [`docs/wiring.png`](docs/wiring.png), generado con `docs/wiring.py`.
+- Pantallas propuestas (panel, gráfica de vistas y lista de canales): [`docs/preview_touch.png`](docs/preview_touch.png), generadas con `docs/mockup_touch.py`.
